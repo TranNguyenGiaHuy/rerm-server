@@ -6,16 +6,18 @@ import com.huytran.rerm.constant.ResultCode
 import com.huytran.rerm.model.core.ModelCore
 import org.springframework.data.repository.CrudRepository
 
-abstract class BaseService<BaseModel : ModelCore, out BaseRepository : CrudRepository<BaseModel, Long>>(private val repository: BaseRepository) {
+abstract class BaseService<BaseModel : ModelCore, out BaseRepository : CrudRepository<BaseModel, Long>, Params: BaseService.AbstractParams>(private val repository: BaseRepository) {
 
     abstract fun createModel(): BaseModel
-    abstract fun parseParams(model: BaseModel)
+    abstract fun parseParams(model: BaseModel, params: Params)
 
-    fun create(): BeanResult {
+    abstract class AbstractParams
+
+    fun create(params: Params): BeanResult {
         val beanResult = BeanResult()
 
         val model = createModel()
-        parseParams(model)
+        parseParams(model, params)
         repository.save(model)
         beanResult.bean = model.createBean()
         beanResult.code = ResultCode.RESULT_CODE_VALID
@@ -23,7 +25,7 @@ abstract class BaseService<BaseModel : ModelCore, out BaseRepository : CrudRepos
         return beanResult
     }
 
-    fun update(id: Long): BeanResult {
+    open fun update(id: Long, params: Params): BeanResult {
         val beanResult = BeanResult()
 
         val optional = repository.findById(id)
@@ -33,7 +35,7 @@ abstract class BaseService<BaseModel : ModelCore, out BaseRepository : CrudRepos
         }
 
         val model = optional.get()
-        parseParams(model as BaseModel)
+        parseParams(model, params)
         repository.save(model)
 
         beanResult.bean = model.createBean()

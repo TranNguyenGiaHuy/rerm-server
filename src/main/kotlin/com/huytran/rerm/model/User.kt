@@ -8,14 +8,10 @@ import javax.persistence.*
 @Entity(name = "user")
 data class User(
         @Column(name = "name")
-        var name: String,
+        var name: String = "",
         @Column(name = "password")
-        var password: String,
-        @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], mappedBy = "user")
-        var userDetail: UserDetail?
+        var password: String = ""
 ) : ModelCore() {
-
-    constructor() : this("", "", null)
 
     override fun createEmptyBean(): BeanBasic {
         return BeanUser()
