@@ -27,8 +27,8 @@ public class TransactionService extends CoreService<Transaction, TransactionRepo
     @Override
     public void parseParams(Transaction transaction, Params params) {
         transaction.setBlockchainHash(params.blockchainHash);
-        transaction.setFrom(params.from);
-        transaction.setTo(params.to);
+        transaction.setSrc(params.src);
+        transaction.setDes(params.des);
         transaction.setBlockchainFee(params.blockchainFee);
         transaction.setStatus(params.status);
         transaction.setType(params.type);
@@ -36,8 +36,8 @@ public class TransactionService extends CoreService<Transaction, TransactionRepo
 
     public class Params extends CoreService.AbstractParams {
         String blockchainHash;
-        String from;
-        String to;
+        String src;
+        String des;
         Double blockchainFee;
         Long status;
         Long type;

@@ -11,10 +11,10 @@ import javax.persistence.*
 data class Transaction(
         @Column(name = "blockchain_hash")
         var blockchainHash: String = "",
-        @Column(name = "from")
-        var from: String = "",
-        @Column(name = "to")
-        var to: String = "",
+        @Column(name = "src")
+        var src: String = "",
+        @Column(name = "des")
+        var des: String = "",
         @Column(name = "blockchain_fee")
         var blockchainFee: Double = 0.0,
         @Column(name = "status")
@@ -31,8 +31,8 @@ data class Transaction(
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanTransaction
         trueBean.blockchainHash = this.blockchainHash
-        trueBean.from = this.from
-        trueBean.to = this.to
+        trueBean.src = this.src
+        trueBean.des = this.des
         trueBean.blockchainFee = this.blockchainFee
         trueBean.status = this.status
         trueBean.type = this.type

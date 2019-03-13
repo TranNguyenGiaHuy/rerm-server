@@ -26,16 +26,16 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
     public void parseParams(Payment payment, Params params) {
         payment.setAmount(params.amount);
         payment.setCurrency(params.currency);
-        payment.setFrom(params.from);
-        payment.setTo(params.to);
+        payment.setSrc(params.src);
+        payment.setDes(params.des);
         payment.setTransactionId(params.transactionId);
     }
 
     public class Params extends CoreService.AbstractParams {
         Float amount;
         String currency;
-        Long from;
-        Long to;
+        Long src;
+        Long des;
         Long transactionId;
     }
 
