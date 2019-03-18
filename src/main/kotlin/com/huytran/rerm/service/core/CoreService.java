@@ -22,7 +22,7 @@ public abstract class CoreService<BaseModel extends ModelCore, Repository extend
         this.repository = repository;
     }
 
-    public abstract class AbstractParams{}
+    public abstract static class AbstractParams{}
 
     public abstract BaseModel createModel();
     public abstract void parseParams(BaseModel model, Params params);

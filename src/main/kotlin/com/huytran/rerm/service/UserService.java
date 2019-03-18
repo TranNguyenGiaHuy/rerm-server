@@ -15,12 +15,15 @@ import java.util.Optional;
 public class UserService extends CoreService<User, UserRepository, UserService.Params> {
 
     private UserRepository userRepository;
+    private GrpcSessionService grpcSessionService;
 
     UserService(
-            UserRepository userRepository
+            UserRepository userRepository,
+            GrpcSessionService grpcSessionService
     ) {
         super(userRepository);
         this.userRepository = userRepository;
+        this.grpcSessionService = grpcSessionService;
     }
 
     @Override
@@ -34,15 +37,22 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         user.setPassword(params.password);
     }
 
-    public class Params extends CoreService.AbstractParams {
+    public static class Params extends CoreService.AbstractParams {
         String name;
         String password;
+
+        public Params(String name,
+                      String password) {
+            this.name = name;
+            this.password = password;
+        }
     }
 
-    public BeanResult signup(HttpSession httpSession, Params params) {
+    public BeanResult signup(Params params) {
         BeanResult beanResult = new BeanResult();
 
-        if (isLogin(httpSession)) {
+        BeanResult getSessionResult = grpcSessionService.getSession();
+        if (getSessionResult.getCode() == ResultCode.RESULT_CODE_VALID) {
             beanResult.setCode(ResultCode.RESULT_CODE_ALREADY_LOGIN);
             return beanResult;
         }
@@ -60,17 +70,29 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         );
         userRepository.save(user);
 
-        httpSession.setAttribute("currentUser", user);
+        BeanResult createSessionResult = grpcSessionService.create(
+                new GrpcSessionService.Params(
+                        user.getId(),
+                        UtilityFunction.Companion.generateToken()
+                )
+        );
+
+        if (createSessionResult.getCode() != ResultCode.RESULT_CODE_VALID) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            beanResult.setBean(createSessionResult.getBean());
+            return beanResult;
+        }
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
-        beanResult.setBean(user.createBean());
+        beanResult.setBean(createSessionResult.getBean());
         return beanResult;
     }
 
-    public BeanResult login(HttpSession httpSession, Params params) {
+    public BeanResult login(Params params) {
         BeanResult beanResult = new BeanResult();
 
-        if (isLogin(httpSession)) {
+        BeanResult getSessionResult = grpcSessionService.getSession();
+        if (getSessionResult.getCode() == ResultCode.RESULT_CODE_VALID) {
             beanResult.setCode(ResultCode.RESULT_CODE_ALREADY_LOGIN);
             return beanResult;
         }
@@ -89,33 +111,30 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
             return beanResult;
         }
 
-        httpSession.setAttribute("currentUser", user);
+        BeanResult createSessionResult = grpcSessionService.create(
+                new GrpcSessionService.Params(
+                        user.getId(),
+                        UtilityFunction.Companion.generateToken()
+                )
+        );
+
+        if (createSessionResult.getCode() != ResultCode.RESULT_CODE_VALID) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            beanResult.setBean(createSessionResult.getBean());
+            return beanResult;
+        }
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         beanResult.setBean(user.createBean());
         return beanResult;
     }
 
-    public BeanResult logout(HttpSession httpSession) {
+    public BeanResult logout() {
         BeanResult beanResult = new BeanResult();
 
-        if (!isLogin(httpSession)) {
-            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
-            return beanResult;
-        }
-
-        httpSession.removeAttribute("currentUser");
-        httpSession.invalidate();
+        grpcSessionService.invalidateSession();
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         return beanResult;
-    }
-
-    private Boolean isLogin(HttpSession httpSession) {
-        return httpSession.getAttribute("currentUser") != null;
-    }
-
-    private User getCurrentUser(HttpSession httpSession) {
-        return (User) httpSession.getAttribute("currentUser");
     }
 }

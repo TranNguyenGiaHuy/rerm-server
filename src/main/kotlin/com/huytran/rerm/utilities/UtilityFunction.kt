@@ -1,9 +1,8 @@
 package com.huytran.rerm.utilities
 
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
+import java.security.SecureRandom
 import java.util.*
-import javax.servlet.http.HttpSession
-
 
 
 class UtilityFunction {
@@ -19,6 +18,14 @@ class UtilityFunction {
 
         fun getUUID(): String {
             return UUID.randomUUID().toString()
+        }
+
+        fun generateToken(): String{
+            val random = SecureRandom()
+            val bytes = ByteArray(20)
+            random.nextBytes(bytes)
+            val encoder = Base64.getUrlEncoder().withoutPadding()
+            return encoder.encodeToString(bytes)
         }
     }
 
