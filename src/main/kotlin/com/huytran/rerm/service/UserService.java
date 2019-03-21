@@ -40,11 +40,41 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
     public static class Params extends CoreService.AbstractParams {
         String name;
         String password;
+        String userName;
+        Long avatarId;
+        String phoneNumber;
+        String idCard;
+        Long tsCardDated;
+        Long tsDateOfBirth;
+
+        public Params(String name,
+                      String password,
+                      String userName,
+                      Long avatarId,
+                      String phoneNumber,
+                      String idCard,
+                      Long tsCardDated,
+                      Long tsDateOfBirth) {
+            this.name = name;
+            this.password = password;
+            this.userName = userName;
+            this.avatarId = avatarId;
+            this.phoneNumber = phoneNumber;
+            this.idCard = idCard;
+            this.tsCardDated = tsCardDated;
+            this.tsDateOfBirth = tsDateOfBirth;
+        }
 
         public Params(String name,
                       String password) {
             this.name = name;
             this.password = password;
+            this.userName = "";
+            this.avatarId = -1L;
+            this.phoneNumber = "";
+            this.idCard = "";
+            this.tsCardDated = 0L;
+            this.tsDateOfBirth = 0L;
         }
     }
 
