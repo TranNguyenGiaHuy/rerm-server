@@ -10,6 +10,8 @@ class ResultCode {
         const val RESULT_CODE_WRONG_PASSWORD = -4
         const val RESULT_CODE_ALREADY_LOGIN = -5
         const val RESULT_CODE_NOT_LOGIN = -6
+        const val RESULT_CODE_INVALID_IMAGE = -7
+        const val RESULT_CODE_SAVE_IMAGE_FAIL = -8
     }
 
 }

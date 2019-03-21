@@ -29,7 +29,9 @@ data class Room(
         @Column(name = "prepaid")
         var prepaid: Long = 0,
         @Column(name = "description")
-        var description: String = "") : ModelCore() {
+        var description: String = "",
+        @Column(name = "owner")
+        var owner: Long = 0) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
         return BeanRoom()
@@ -50,5 +52,6 @@ data class Room(
         bean.homeType = this.homeType
         bean.prepaid = this.prepaid
         bean.description = this.description
+        bean.owner = this.owner
     }
 }

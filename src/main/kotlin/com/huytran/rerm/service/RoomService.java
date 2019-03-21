@@ -35,6 +35,7 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         room.setHomeType(params.homeType);
         room.setPrepaid(params.prepaid);
         room.setDescription(params.description);
+        room.setOwner(params.owner);
     }
 
     public class Params extends CoreService.AbstractParams {
@@ -49,6 +50,7 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         Integer homeType;
         Long prepaid;
         String description;
+        Long owner;
     }
 
 }

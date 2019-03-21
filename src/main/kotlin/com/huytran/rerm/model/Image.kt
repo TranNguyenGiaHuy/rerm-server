@@ -11,7 +11,9 @@ data class Image(
         @Column(name = "path")
         var path: String = "",
         @Column(name = "room_id")
-        var roomId: Long = 0
+        var roomId: Long = 0,
+        @Column(name = "name")
+        var name: String = ""
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
