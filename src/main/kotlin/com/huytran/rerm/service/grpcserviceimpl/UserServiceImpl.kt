@@ -1,6 +1,7 @@
 package com.huytran.rerm.service.grpcserviceimpl
 
 import com.huytran.grpcdemo.generatedproto.*
+import com.huytran.rerm.bean.BeanGrpcSession
 import com.huytran.rerm.bean.BeanToken
 import com.huytran.rerm.service.UserService
 import io.grpc.stub.StreamObserver
@@ -19,7 +20,7 @@ class UserServiceImpl(private val userService: UserService): UserServiceGrpc.Use
         val response = SignUpResponse.newBuilder()
                 .setResultCode(signupResult.code)
                 .setToken(
-                        (signupResult.bean as BeanToken).token
+                        (signupResult.bean as BeanGrpcSession).token
                 )
                 .build()
         responseObserver?.onNext(response)
