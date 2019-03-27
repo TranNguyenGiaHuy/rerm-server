@@ -1,5 +1,6 @@
 package com.huytran.rerm.service;
 
+import com.huytran.rerm.bean.BeanGrpcSession;
 import com.huytran.rerm.bean.core.BeanResult;
 import com.huytran.rerm.constant.ResultCode;
 import com.huytran.rerm.model.User;
@@ -165,6 +166,29 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         grpcSessionService.invalidateSession();
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+    }
+
+    public BeanResult get() {
+        BeanResult beanResult = new BeanResult();
+        BeanResult getGrpcTokkenResult = grpcSessionService.getSession();
+
+        if (getGrpcTokkenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokkenResult.getBean() == null
+                || !(getGrpcTokkenResult.getBean() instanceof BeanGrpcSession)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        Long userId = ((BeanGrpcSession) getGrpcTokkenResult.getBean()).getUserId();
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(optionalUser.get().createBean());
         return beanResult;
     }
 }
