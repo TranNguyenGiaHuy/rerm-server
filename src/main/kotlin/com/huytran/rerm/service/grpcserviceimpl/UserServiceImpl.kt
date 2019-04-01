@@ -41,15 +41,17 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
         )
         val response = LoginResponse.newBuilder()
                 .setResultCode(loginResult.code)
-                .setToken(
-                        (loginResult.bean as BeanToken).token
-                )
-                .build()
-        responseObserver?.onNext(response)
+        if (loginResult.code == ResultCode.RESULT_CODE_VALID
+                && loginResult.bean != null
+                && loginResult.bean is BeanToken) {
+            response.token = (loginResult.bean as BeanToken).token
+        }
+
+        responseObserver?.onNext(response.build())
         responseObserver?.onCompleted()
     }
 
-    override fun getInfo(request: com.huytran.grpcdemo.generatedproto.GetInfoRequest?, responseObserver: StreamObserver<com.huytran.grpcdemo.generatedproto.GetInfoResponse>?) {
+    override fun getInfo(request: GetInfoRequest?, responseObserver: StreamObserver<GetInfoResponse>?) {
         val getInfoResult = userService.get()
         val response = GetInfoResponse.newBuilder()
                 .setResultCode(getInfoResult.code)
@@ -69,6 +71,14 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
         }
 
         responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun logout(request: LogoutRequest?, responseObserver: StreamObserver<LogoutResponse>?) {
+        userService.logout()
+        val response = LogoutResponse.newBuilder()
+                .build()
+        responseObserver?.onNext(response)
         responseObserver?.onCompleted()
     }
 
