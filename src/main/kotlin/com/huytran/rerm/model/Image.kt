@@ -10,8 +10,8 @@ import javax.persistence.*
 data class Image(
         @Column(name = "path")
         var path: String = "",
-        @Column(name = "room_id")
-        var roomId: Long = 0,
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
+        var room: Room? = null,
         @Column(name = "name")
         var name: String = ""
 ) : ModelCore() {
@@ -23,6 +23,6 @@ data class Image(
     override fun parseToBean(beanBasic: BeanBasic) {
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanImage
-        trueBean.roomId = this.roomId
+        trueBean.roomId = this.room?.id ?: -1
     }
 }

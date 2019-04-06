@@ -10,10 +10,10 @@ import javax.persistence.*
 
 @Entity(name = "contract_contract_term")
 data class ContractContractTerm(
-        @Column(name = "contract_id")
-        var contractId: Long = -1,
-        @Column(name = "contract_term_id")
-        var contractTermId: Long = -1
+        @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL]) @JoinColumn(name = "contract_id")
+        var contract: Contract? = null,
+        @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL]) @JoinColumn(name = "contract_term_id")
+        var contractTerm: ContractTerm? = null
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -23,7 +23,7 @@ data class ContractContractTerm(
     override fun parseToBean(beanBasic: BeanBasic) {
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanContractContractTerm
-        trueBean.contractId = this.contractId
-        trueBean.contractTermId = this.contractTermId
+        trueBean.contractId = this.contract?.id ?: -1
+        trueBean.contractTermId = this.contractTerm?.id ?: -1
     }
 }

@@ -1,6 +1,7 @@
 package com.huytran.rerm.service;
 
 import com.huytran.rerm.model.Room;
+import com.huytran.rerm.model.User;
 import com.huytran.rerm.repository.RoomRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         Integer homeType;
         Long prepaid;
         String description;
-        Long owner;
+        User owner;
     }
 
 }

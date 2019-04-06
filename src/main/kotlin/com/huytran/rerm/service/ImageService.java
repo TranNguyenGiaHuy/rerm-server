@@ -45,20 +45,20 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
 
     @Override
     public void parseParams(Image image, Params params) {
-        image.setRoomId(params.roomId);
+        image.setRoom(params.room);
         image.setPath(params.path);
         image.setName(params.name);
     }
 
     public class Params extends CoreService.AbstractParams {
-        Long roomId;
+        Room room;
         String path;
         String name;
 
-        Params(Long roomId,
+        Params(Room room,
                String path,
                String name) {
-            this.roomId = roomId;
+            this.room = room;
             this.path = path;
             this.name = name;
         }
@@ -92,7 +92,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
 
         return create(
                 new Params(
-                        roomId,
+                        optionalRoom.get(),
                         pathString,
                         name
                 )
@@ -125,7 +125,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
 
         Room room = optionalRoom.get();
         // get all file
-        List<Image> imageList = imageRepository.findByRoomId(room.getId());
+        List<Image> imageList = room.getImageList();
         beanResult.setBean(
                 new BeanList(
                         imageList

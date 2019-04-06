@@ -1,9 +1,9 @@
 package com.huytran.rerm.service;
 
+import com.huytran.rerm.model.Contract;
 import com.huytran.rerm.model.ContractContractTerm;
 import com.huytran.rerm.model.ContractTerm;
 import com.huytran.rerm.repository.ContractContractTermRepository;
-import com.huytran.rerm.repository.ContractTermRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
 
@@ -26,13 +26,15 @@ public class ContractContractTermService extends CoreService<ContractContractTer
 
     @Override
     public void parseParams(ContractContractTerm contractContractTerm, Params params) {
-        contractContractTerm.setContractId(params.contractId);
-        contractContractTerm.setContractTermId(params.contractTermId);
+        contractContractTerm.setContract(params.contract);
+        contractContractTerm.setContractTerm(params.contractTerm);
     }
 
     public class Params extends CoreService.AbstractParams {
-        Long contractId;
-        Long contractTermId;
+        Contract contract;
+        ContractTerm contractTerm;
     }
+
+
 
 }

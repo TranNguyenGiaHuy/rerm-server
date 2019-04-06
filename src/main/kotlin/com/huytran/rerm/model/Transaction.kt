@@ -20,7 +20,10 @@ data class Transaction(
         @Column(name = "status")
         var status: Long = -1,
         @Column(name = "type")
-        var type: Long = -1
+        var type: Long = -1,
+        @OneToOne(cascade = [CascadeType.ALL])
+        @JoinColumn(name = "payment_id")
+        var payment: Payment? = null
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {

@@ -18,6 +18,9 @@ open class ModelCore: Serializable, AbstractModel() {
     @Column(name = "ts_last_modified")
     var tsLastModified: Long = System.currentTimeMillis()
 
+    @Column(name = "available")
+    var available: Boolean = true
+
     override fun createEmptyBean(): BeanBasic {
         return BeanBasic()
     }

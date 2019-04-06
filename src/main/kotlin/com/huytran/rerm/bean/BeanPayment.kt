@@ -8,4 +8,5 @@ class BeanPayment : BeanBasic() {
     var src: Long = -1
     var des: Long = -1
     var transactionId: Long = -1
+    var payerId: Long = -1
 }

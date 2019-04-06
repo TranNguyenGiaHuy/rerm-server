@@ -15,8 +15,10 @@ data class Payment(
         var src: Long = -1,
         @Column(name = "des")
         var des: Long = -1,
-        @Column(name = "transaction_id")
-        var transactionId: Long = -1
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "payer")
+        var payer: User? = null,
+        @OneToOne(mappedBy = "payment")
+        var transaction: Transaction? = null
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -30,6 +32,7 @@ data class Payment(
         trueBean.currency = this.currency
         trueBean.src = this.src
         trueBean.des = this.des
-        trueBean.transactionId = this.transactionId
+        trueBean.transactionId = this.transaction?.id ?: -1
+        trueBean.payerId = this.payer?.id ?: -1
     }
 }

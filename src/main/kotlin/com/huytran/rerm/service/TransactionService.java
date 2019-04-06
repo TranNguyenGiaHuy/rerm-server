@@ -1,6 +1,7 @@
 package com.huytran.rerm.service;
 
 import com.huytran.rerm.model.Image;
+import com.huytran.rerm.model.Payment;
 import com.huytran.rerm.model.Transaction;
 import com.huytran.rerm.repository.ImageRepository;
 import com.huytran.rerm.repository.TransactionRepository;
@@ -32,6 +33,7 @@ public class TransactionService extends CoreService<Transaction, TransactionRepo
         transaction.setBlockchainFee(params.blockchainFee);
         transaction.setStatus(params.status);
         transaction.setType(params.type);
+        transaction.setPayment(params.payment);
     }
 
     public class Params extends CoreService.AbstractParams {
@@ -41,6 +43,7 @@ public class TransactionService extends CoreService<Transaction, TransactionRepo
         Double blockchainFee;
         Long status;
         Long type;
+        Payment payment;
     }
 
 }

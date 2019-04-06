@@ -1,6 +1,8 @@
 package com.huytran.rerm.service;
 
 import com.huytran.rerm.model.Contract;
+import com.huytran.rerm.model.Room;
+import com.huytran.rerm.model.User;
 import com.huytran.rerm.repository.ContractRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
@@ -32,17 +34,19 @@ public class ContractService extends CoreService<Contract, ContractRepository, C
         contract.setModeOPayment(params.modeOPayment);
         contract.setNumberOfRoom(params.numberOfRoom);
         contract.setTransactionId(params.transactionId);
+        contract.setRoom(params.room);
     }
 
     public class Params extends CoreService.AbstractParams {
-        Long owner;
-        Long renter;
+        User owner;
+        User renter;
         Long tsStart;
         Long tsEnd;
         Long prepaid;
         Integer modeOPayment;
         Long numberOfRoom;
         Long transactionId;
+        Room room;
     }
 
 }

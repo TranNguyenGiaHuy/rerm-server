@@ -9,10 +9,10 @@ import javax.persistence.*
 
 @Entity(name = "contract")
 data class Contract(
-        @Column(name = "owner")
-        var owner: Long = -1,
-        @Column(name = "renter")
-        var renter: Long = -1,
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "owner")
+        var owner: User? = null,
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "renter")
+        var renter: User? = null,
         @Column(name = "ts_start")
         var tsStart: Long = -1,
         @Column(name = "ts_end")
@@ -24,7 +24,11 @@ data class Contract(
         @Column(name = "number_of_room")
         var numberOfRoom: Long = -1,
         @Column(name = "transaction_id")
-        var transactionId: Long = -1
+        var transactionId: Long = -1,
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
+        var room: Room? = null,
+        @OneToMany(mappedBy = "contract" ,fetch = FetchType.LAZY)
+        var contractContractTermList: List<ContractContractTerm> = emptyList()
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -34,13 +38,14 @@ data class Contract(
     override fun parseToBean(beanBasic: BeanBasic) {
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanContract
-        trueBean.owner = this.owner
-        trueBean.renter = this.renter
+        trueBean.owner = this.owner?.id ?: -1
+        trueBean.renter = this.renter?.id ?: -1
         trueBean.tsStart = this.tsStart
         trueBean.tsEnd = this.tsEnd
         trueBean.prepaid = this.prepaid
         trueBean.modeOPayment = this.modeOPayment
         trueBean.numberOfRoom = this.numberOfRoom
         trueBean.transactionId = this.transactionId
+        trueBean.roomId = this.room?.id ?: -1
     }
 }

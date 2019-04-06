@@ -1,6 +1,8 @@
 package com.huytran.rerm.service;
 
 import com.huytran.rerm.model.Payment;
+import com.huytran.rerm.model.Transaction;
+import com.huytran.rerm.model.User;
 import com.huytran.rerm.repository.PaymentRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,8 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
         payment.setCurrency(params.currency);
         payment.setSrc(params.src);
         payment.setDes(params.des);
-        payment.setTransactionId(params.transactionId);
+        payment.setTransaction(params.transaction);
+        payment.setPayer(params.payer);
     }
 
     public class Params extends CoreService.AbstractParams {
@@ -36,7 +39,8 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
         String currency;
         Long src;
         Long des;
-        Long transactionId;
+        Transaction transaction;
+        User payer;
     }
 
 }

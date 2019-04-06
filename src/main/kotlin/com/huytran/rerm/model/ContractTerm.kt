@@ -1,18 +1,21 @@
 package com.huytran.rerm.model
 
 import com.huytran.rerm.bean.BeanContractTerm
-import com.huytran.rerm.bean.BeanImage
-import com.huytran.rerm.bean.BeanUser
 import com.huytran.rerm.bean.core.BeanBasic
 import com.huytran.rerm.model.core.ModelCore
-import javax.persistence.*
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.OneToMany
 
 @Entity(name = "contract_term")
 data class ContractTerm(
         @Column(name = "name")
         var name: String = "",
         @Column(name = "description")
-        var description: String = ""
+        var description: String = "",
+        @OneToMany(mappedBy = "contractTerm", fetch = FetchType.LAZY)
+        var contractContractTermList: List<ContractContractTerm> = emptyList()
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
