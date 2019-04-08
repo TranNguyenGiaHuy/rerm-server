@@ -6,6 +6,7 @@ import com.huytran.rerm.constant.ResultCode;
 import com.huytran.rerm.interceptor.SecurityInterceptor;
 import com.huytran.rerm.model.GrpcSession;
 import com.huytran.rerm.model.Image;
+import com.huytran.rerm.model.User;
 import com.huytran.rerm.repository.GrpcSessionRepository;
 import com.huytran.rerm.repository.ImageRepository;
 import com.huytran.rerm.service.core.CoreService;
@@ -32,16 +33,16 @@ public class GrpcSessionService extends CoreService<GrpcSession, GrpcSessionRepo
 
     @Override
     public void parseParams(GrpcSession image, Params params) {
-        image.setUserId(params.userId);
+        image.setUser(params.user);
         image.setToken(params.token);
     }
 
     public static class Params extends CoreService.AbstractParams {
-        Long userId;
+        User user;
         String token;
 
-        Params(Long userId, String token) {
-            this.userId =  userId;
+        Params(User user, String token) {
+            this.user =  user;
             this.token =  token;
         }
     }
@@ -84,6 +85,31 @@ public class GrpcSessionService extends CoreService<GrpcSession, GrpcSessionRepo
         }
 
         grpcSessionRepository.delete(grpcSessionOptional.get());
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+    }
+
+    public BeanResult checkLogin() {
+        BeanResult beanResult = new BeanResult();
+
+        String token = SecurityInterceptor.Companion.getUSER_IDENTITY().get();
+        if (token.isEmpty()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            return beanResult;
+        }
+
+        Optional<GrpcSession> grpcSessionOptional = grpcSessionRepository.findByToken(token);
+        if (!grpcSessionOptional.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            return beanResult;
+        }
+
+        User user = grpcSessionOptional.get().getUser();
+        if (user == null) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            return beanResult;
+        }
+
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         return beanResult;
     }

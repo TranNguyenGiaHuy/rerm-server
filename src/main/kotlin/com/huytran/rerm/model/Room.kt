@@ -31,9 +31,9 @@ data class Room(
         var description: String = "",
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "owner")
         var owner: User? = null,
-        @OneToMany(mappedBy = "room", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
         var imageList: List<Image> = emptyList(),
-        @OneToMany(mappedBy = "room", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
         var contractList: List<Contract> = emptyList()) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {

@@ -10,9 +10,9 @@ import javax.persistence.*
 
 @Entity(name = "contract_contract_term")
 data class ContractContractTerm(
-        @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL]) @JoinColumn(name = "contract_id")
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "contract_id")
         var contract: Contract? = null,
-        @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL]) @JoinColumn(name = "contract_term_id")
+        @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "contract_term_id")
         var contractTerm: ContractTerm? = null
 ) : ModelCore() {
 

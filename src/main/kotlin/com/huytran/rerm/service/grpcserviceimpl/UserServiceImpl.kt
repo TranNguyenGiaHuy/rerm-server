@@ -68,6 +68,7 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                     .setIdCard(bean.idCard)
                     .setTsCardDated(bean.tsCardDated)
                     .setTsDateOfBirth(bean.tsDateOfBirth)
+                    .setId(bean.id)
         }
 
         responseObserver?.onNext(response.build())
@@ -77,6 +78,15 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
     override fun logout(request: LogoutRequest?, responseObserver: StreamObserver<LogoutResponse>?) {
         userService.logout()
         val response = LogoutResponse.newBuilder()
+                .build()
+        responseObserver?.onNext(response)
+        responseObserver?.onCompleted()
+    }
+
+    override fun loginWithToken(request: LoginWithTokenRequest?, responseObserver: StreamObserver<LoginWithTokenResponse>?) {
+        val checkLoginResult = userService.loginWithToken()
+        val response = LoginWithTokenResponse.newBuilder()
+                .setResultCode(checkLoginResult.code)
                 .build()
         responseObserver?.onNext(response)
         responseObserver?.onCompleted()

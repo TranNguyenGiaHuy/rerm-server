@@ -21,8 +21,7 @@ data class Transaction(
         var status: Long = -1,
         @Column(name = "type")
         var type: Long = -1,
-        @OneToOne(cascade = [CascadeType.ALL])
-        @JoinColumn(name = "payment_id")
+        @OneToOne(mappedBy = "transaction")
         var payment: Payment? = null
 ) : ModelCore() {
 

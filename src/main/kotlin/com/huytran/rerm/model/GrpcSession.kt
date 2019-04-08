@@ -3,14 +3,14 @@ package com.huytran.rerm.model
 import com.huytran.rerm.bean.BeanGrpcSession
 import com.huytran.rerm.bean.core.BeanBasic
 import com.huytran.rerm.model.core.ModelCore
-import javax.persistence.Column
-import javax.persistence.Entity
+import javax.persistence.*
 
 @Entity(name = "grpc_session")
 data class GrpcSession(
-        @Column(name = "user_id")
-        var userId: Long = 0,
-        @Column(name = "address")
+        @OneToOne
+        @JoinColumn(name = "user_id")
+        var user: User? = null,
+        @Column(name = "token")
         var token: String = "") : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -21,7 +21,7 @@ data class GrpcSession(
         super.parseToBean(beanBasic)
         val bean = beanBasic as BeanGrpcSession
 
-        bean.userId = this.userId
+        bean.userId = this.user?.id ?: -1
         bean.token = this.token
     }
 }

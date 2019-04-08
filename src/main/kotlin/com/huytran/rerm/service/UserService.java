@@ -103,7 +103,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
 
         BeanResult createSessionResult = grpcSessionService.create(
                 new GrpcSessionService.Params(
-                        user.getId(),
+                        user,
                         UtilityFunction.Companion.generateToken()
                 )
         );
@@ -144,7 +144,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
 
         BeanResult createSessionResult = grpcSessionService.create(
                 new GrpcSessionService.Params(
-                        user.getId(),
+                        user,
                         UtilityFunction.Companion.generateToken()
                 )
         );
@@ -171,16 +171,16 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
 
     public BeanResult get() {
         BeanResult beanResult = new BeanResult();
-        BeanResult getGrpcTokkenResult = grpcSessionService.getSession();
+        BeanResult getGrpcTokenResult = grpcSessionService.getSession();
 
-        if (getGrpcTokkenResult.getCode() != ResultCode.RESULT_CODE_VALID
-                || getGrpcTokkenResult.getBean() == null
-                || !(getGrpcTokkenResult.getBean() instanceof BeanGrpcSession)) {
+        if (getGrpcTokenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokenResult.getBean() == null
+                || !(getGrpcTokenResult.getBean() instanceof BeanGrpcSession)) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;
         }
 
-        Long userId = ((BeanGrpcSession) getGrpcTokkenResult.getBean()).getUserId();
+        Long userId = ((BeanGrpcSession) getGrpcTokenResult.getBean()).getUserId();
         Optional<User> optionalUser = userRepository.findById(userId);
         if (!optionalUser.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
@@ -190,5 +190,10 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         beanResult.setBean(optionalUser.get().createBean());
         return beanResult;
+    }
+
+    public BeanResult loginWithToken() {
+        return grpcSessionService.checkLogin();
+
     }
 }

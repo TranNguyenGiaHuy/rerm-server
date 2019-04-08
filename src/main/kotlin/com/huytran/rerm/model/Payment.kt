@@ -17,7 +17,8 @@ data class Payment(
         var des: Long = -1,
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "payer")
         var payer: User? = null,
-        @OneToOne(mappedBy = "payment")
+        @OneToOne
+        @JoinColumn(name = "transaction_id")
         var transaction: Transaction? = null
 ) : ModelCore() {
 
