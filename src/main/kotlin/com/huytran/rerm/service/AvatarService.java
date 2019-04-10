@@ -4,75 +4,75 @@ import com.huytran.rerm.bean.core.BeanList;
 import com.huytran.rerm.bean.core.BeanResult;
 import com.huytran.rerm.config.PropertyConfig;
 import com.huytran.rerm.constant.ResultCode;
+import com.huytran.rerm.model.Avatar;
 import com.huytran.rerm.model.Image;
 import com.huytran.rerm.model.Room;
+import com.huytran.rerm.model.User;
+import com.huytran.rerm.repository.AvatarRepository;
 import com.huytran.rerm.repository.ImageRepository;
 import com.huytran.rerm.repository.RoomRepository;
+import com.huytran.rerm.repository.UserRepository;
 import com.huytran.rerm.service.core.CoreService;
 import com.huytran.rerm.utilities.UtilityFunction;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ImageService extends CoreService<Image, ImageRepository, ImageService.Params> {
+public class AvatarService extends CoreService<Avatar, AvatarRepository, AvatarService.Params> {
 
-    private ImageRepository imageRepository;
-    private RoomRepository roomRepository;
+    private AvatarRepository avatarRepository;
+    private UserRepository userRepository;
     private PropertyConfig propertyConfig;
 
-    ImageService(
-            ImageRepository imageRepository,
-            RoomRepository roomRepository,
+    AvatarService(
+            AvatarRepository avatarRepository,
+            UserRepository userRepository,
             PropertyConfig propertyConfig
     ) {
-        super(imageRepository);
-        this.imageRepository = imageRepository;
-        this.roomRepository = roomRepository;
+        super(avatarRepository);
+        this.avatarRepository = avatarRepository;
+        this.userRepository = userRepository;
         this.propertyConfig = propertyConfig;
     }
 
     @Override
-    public Image createModel() {
-        return new Image();
+    public Avatar createModel() {
+        return new Avatar();
     }
 
     @Override
-    public void parseParams(Image image, Params params) {
-        image.setRoom(params.room);
-        image.setPath(params.path);
-        image.setName(params.name);
+    public void parseParams(Avatar avatar, Params params) {
+        avatar.setUser(params.user);
+        avatar.setPath(params.path);
+        avatar.setName(params.name);
     }
 
     public class Params extends CoreService.AbstractParams {
-        Room room;
+        User user;
         String path;
         String name;
 
-        Params(Room room,
+        Params(User user,
                String path,
                String name) {
-            this.room = room;
+            this.user = user;
             this.path = path;
             this.name = name;
         }
     }
 
-    public BeanResult create(Long roomId, byte[] image, String name) {
+    public BeanResult create(Long userId, byte[] image, String name) {
         BeanResult beanResult = new BeanResult();
         if (image == null) {
             beanResult.setCode(ResultCode.RESULT_CODE_INVALID_IMAGE);
             return beanResult;
         }
 
-        Optional<Room> optionalRoom = roomRepository.findById(roomId);
-        if (!optionalRoom.isPresent()) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;
         }
@@ -91,7 +91,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
 
         return create(
                 new Params(
-                        optionalRoom.get(),
+                        optionalUser.get(),
                         pathString,
                         name
                 )
@@ -99,33 +99,13 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
     }
 
     public byte[] download(Long id) {
-        Optional<Image> optionalImage = imageRepository.findById(id);
-        return optionalImage.map(image ->
+        Optional<Avatar> optionalAvatar = avatarRepository.findById(id);
+        return optionalAvatar.map(image ->
                 UtilityFunction.Companion.downloadFileFromPath(image.getPath())
         )
                 .orElseGet(() ->
                         new byte[0]
                 );
 
-    }
-
-    public BeanResult getAllOfRoom(Long id) {
-        BeanResult beanResult = new BeanResult();
-        Optional<Room> optionalRoom = roomRepository.findById(id);
-        if (!optionalRoom.isPresent()) {
-            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
-            return beanResult;
-        }
-
-        Room room = optionalRoom.get();
-        // get all file
-        List<Image> imageList = room.getImageList();
-        beanResult.setBean(
-                new BeanList(
-                        imageList
-                )
-        );
-        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
-        return beanResult;
     }
 }

@@ -2,27 +2,25 @@ package com.huytran.rerm.service.grpcserviceimpl
 
 import com.google.protobuf.ByteString
 import com.huytran.grpcdemo.generatedproto.*
-import com.huytran.rerm.bean.BeanImage
-import com.huytran.rerm.bean.core.BeanList
+import com.huytran.rerm.bean.BeanAvatar
 import com.huytran.rerm.constant.ResultCode
-import com.huytran.rerm.service.ImageService
+import com.huytran.rerm.service.AvatarService
 import io.grpc.stub.StreamObserver
 import org.lognet.springboot.grpc.GRpcService
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 
 @GRpcService
-class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrpc.ImageServiceImplBase() {
+class AvatarServiceImpl(private val avatarService: AvatarService) : AvatarServiceGrpc.AvatarServiceImplBase() {
 
-    override fun uploadFile(responseObserver: StreamObserver<UploadFileResponse>?): StreamObserver<UploadFileRequest> {
-        val result = ByteArrayOutputStream()
+    override fun uploadAvatar(responseObserver: StreamObserver<UploadAvatarResponse>?): StreamObserver<UploadAvatarRequest> {val result = ByteArrayOutputStream()
         var name: String? = ""
-        var roomId: Long? = 0L
-        return object : StreamObserver<UploadFileRequest> {
-            override fun onNext(p0: UploadFileRequest?) {
+        var userId: Long? = 0L
+        return object : StreamObserver<UploadAvatarRequest> {
+            override fun onNext(p0: UploadAvatarRequest?) {
                 result.write(p0?.content?.toByteArray())
                 name = p0?.name
-                roomId = p0?.roomId
+                userId = p0?.userId
             }
 
             override fun onError(p0: Throwable?) {
@@ -30,20 +28,19 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
             }
 
             override fun onCompleted() {
-                val createResult = imageService.create(
-                        roomId,
+                val createResult = avatarService.create(
+                        userId,
                         result.toByteArray(),
                         name
                 )
-                val response = UploadFileResponse.newBuilder()
+                val response = UploadAvatarResponse.newBuilder()
                         .setResultCode(createResult.code)
                 if (createResult.code == ResultCode.RESULT_CODE_VALID
                         && createResult.bean != null
-                        && createResult.bean is BeanImage) {
-                    val bean = createResult.bean as BeanImage
+                        && createResult.bean is BeanAvatar) {
+                    val bean = createResult.bean as BeanAvatar
                     response.setName(bean.name)
-                            .setRoomId(bean.roomId)
-                            .setResultCode(ResultCode.RESULT_CODE_VALID)
+                            .setUserId(bean.userId)
                             .setId(bean.id)
                 }
 
@@ -54,13 +51,13 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
         }
     }
 
-    override fun downloadFile(request: DownloadRequest?, responseObserver: StreamObserver<DownloadResponse>?) {
-        val downloadResult = imageService.download(
+    override fun downloadAvatar(request: DownloadAvatarRequest?, responseObserver: StreamObserver<DownloadAvatarResponse>?) {
+        val downloadResult = avatarService.download(
                 request?.id
         )
         if (downloadResult.isEmpty()) {
             responseObserver?.onNext(
-                    DownloadResponse.newBuilder()
+                    DownloadAvatarResponse.newBuilder()
                             .setResultCode(ResultCode.RESULT_CODE_INVALID)
                             .build()
             )
@@ -75,7 +72,7 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
             var length = imageStream.read(buffer, 0, bufferSize)
             while (length != -1) {
                 responseObserver?.onNext(
-                        DownloadResponse.newBuilder()
+                        DownloadAvatarResponse.newBuilder()
                                 .setImage(ByteString.copyFrom(buffer, 0, length))
                                 .setResultCode(ResultCode.RESULT_CODE_VALID)
                                 .build()
@@ -86,32 +83,12 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
         } catch (e: Exception) {
             e.printStackTrace()
             responseObserver?.onNext(
-                    DownloadResponse.newBuilder()
+                    DownloadAvatarResponse.newBuilder()
                             .setResultCode(ResultCode.RESULT_CODE_INVALID)
                             .build()
             )
             responseObserver?.onCompleted()
         }
-    }
-
-    override fun getFileOfRoom(request: GetFileOfRoomRequest?, responseObserver: StreamObserver<GetFileOfRoomResponse>?) {
-        val getFileListResult = imageService.getAllOfRoom(
-            request?.roomId
-        )
-        val response = GetFileOfRoomResponse.newBuilder()
-                .setResultCode(getFileListResult.code)
-        if (getFileListResult.code == ResultCode.RESULT_CODE_VALID
-                && getFileListResult.bean != null
-                && getFileListResult.bean is BeanList) {
-            response.addAllFileIdList(
-                    (getFileListResult.bean as BeanList).listBean.map {
-                        (it as BeanImage).id
-                    }
-            )
-        }
-
-        responseObserver?.onNext(response.build())
-        responseObserver?.onCompleted()
     }
 
 }

@@ -13,8 +13,8 @@ data class User(
         var password: String = "",
         @Column(name = "user_name")
         var userName: String = "",
-        @Column(name = "avatar_id")
-        var avatarId: Long = -1,
+        @OneToOne(mappedBy = "user")
+        var avatar: Avatar? = null,
         @Column(name = "phone_number")
         var phoneNumber: String = "",
         @Column(name = "id_card")
