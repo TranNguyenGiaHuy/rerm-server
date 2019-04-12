@@ -43,8 +43,8 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                 .setResultCode(loginResult.code)
         if (loginResult.code == ResultCode.RESULT_CODE_VALID
                 && loginResult.bean != null
-                && loginResult.bean is BeanToken) {
-            response.token = (loginResult.bean as BeanToken).token
+                && loginResult.bean is BeanGrpcSession) {
+            response.token = (loginResult.bean as BeanGrpcSession).token
         }
 
         responseObserver?.onNext(response.build())

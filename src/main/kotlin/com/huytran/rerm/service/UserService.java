@@ -156,7 +156,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         }
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
-        beanResult.setBean(user.createBean());
+        beanResult.setBean(createSessionResult.getBean());
         return beanResult;
     }
 

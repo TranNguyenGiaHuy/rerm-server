@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 @Component
 class PropertyConfig {
 
-    @Value("image.path")
-    var imageFolder: String? = null
+    @Value("\${image.path}")
+    lateinit var imageFolder: String
 
 }

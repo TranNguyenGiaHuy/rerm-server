@@ -13,7 +13,8 @@ import java.io.ByteArrayOutputStream
 @GRpcService
 class AvatarServiceImpl(private val avatarService: AvatarService) : AvatarServiceGrpc.AvatarServiceImplBase() {
 
-    override fun uploadAvatar(responseObserver: StreamObserver<UploadAvatarResponse>?): StreamObserver<UploadAvatarRequest> {val result = ByteArrayOutputStream()
+    override fun uploadAvatar(responseObserver: StreamObserver<UploadAvatarResponse>?): StreamObserver<UploadAvatarRequest> {
+        val result = ByteArrayOutputStream()
         var name: String? = ""
         var userId: Long? = 0L
         return object : StreamObserver<UploadAvatarRequest> {
@@ -24,7 +25,7 @@ class AvatarServiceImpl(private val avatarService: AvatarService) : AvatarServic
             }
 
             override fun onError(p0: Throwable?) {
-
+                p0?.printStackTrace()
             }
 
             override fun onCompleted() {
@@ -39,32 +40,38 @@ class AvatarServiceImpl(private val avatarService: AvatarService) : AvatarServic
                         && createResult.bean != null
                         && createResult.bean is BeanAvatar) {
                     val bean = createResult.bean as BeanAvatar
-                    response.setName(bean.name)
+                    response.setResultCode(ResultCode.RESULT_CODE_VALID)
+                            .setName(bean.name)
                             .setUserId(bean.userId)
                             .setId(bean.id)
+                            .setFileName(bean.fileName)
                 }
 
                 responseObserver?.onNext(
                         response.build()
                 )
+                responseObserver?.onCompleted()
             }
         }
     }
 
     override fun downloadAvatar(request: DownloadAvatarRequest?, responseObserver: StreamObserver<DownloadAvatarResponse>?) {
-        val downloadResult = avatarService.download(
-                request?.id
-        )
-        if (downloadResult.isEmpty()) {
+        val downloadResult = avatarService.download()
+        if (downloadResult.code != ResultCode.RESULT_CODE_VALID
+                || downloadResult.bean !is BeanAvatar
+                || (downloadResult.bean as BeanAvatar).content.isEmpty()) {
             responseObserver?.onNext(
                     DownloadAvatarResponse.newBuilder()
-                            .setResultCode(ResultCode.RESULT_CODE_INVALID)
+                            .setResultCode(downloadResult.code)
                             .build()
             )
             responseObserver?.onCompleted()
         }
+
+        val beanAvatar = downloadResult.bean as BeanAvatar
+
         val imageStream = BufferedInputStream(
-                downloadResult.inputStream()
+                beanAvatar.content.inputStream()
         )
         val bufferSize = 256 * 1024 //256k
         val buffer = ByteArray(bufferSize)
@@ -74,7 +81,9 @@ class AvatarServiceImpl(private val avatarService: AvatarService) : AvatarServic
                 responseObserver?.onNext(
                         DownloadAvatarResponse.newBuilder()
                                 .setImage(ByteString.copyFrom(buffer, 0, length))
-                                .setResultCode(ResultCode.RESULT_CODE_VALID)
+                                .setResultCode(downloadResult.code)
+                                .setFileName(beanAvatar.fileName)
+                                .setName(beanAvatar.name)
                                 .build()
                 )
                 length = imageStream.read(buffer, 0, bufferSize)

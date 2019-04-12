@@ -7,10 +7,10 @@ import javax.persistence.*
 
 @Entity(name = "grpc_session")
 data class GrpcSession(
-        @OneToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "user_id")
         var user: User? = null,
-        @Column(name = "token")
+        @Column(name = "token", unique = true)
         var token: String = "") : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {

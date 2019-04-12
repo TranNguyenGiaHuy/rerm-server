@@ -13,8 +13,8 @@ data class User(
         var password: String = "",
         @Column(name = "user_name")
         var userName: String = "",
-        @OneToOne(mappedBy = "user")
-        var avatar: Avatar? = null,
+        @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+        var avatarList: List<Avatar> = emptyList(),
         @Column(name = "phone_number")
         var phoneNumber: String = "",
         @Column(name = "id_card")
@@ -31,8 +31,8 @@ data class User(
         var rentedContractList: List<Contract> = emptyList(),
         @OneToMany(mappedBy = "payer", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
         var paymentList: List<Payment> = emptyList(),
-        @OneToOne(mappedBy = "user")
-        var grpcSession: GrpcSession? = null
+        @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+        var grpcSessionList: List<GrpcSession> = emptyList()
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {

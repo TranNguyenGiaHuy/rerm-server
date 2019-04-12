@@ -11,11 +11,13 @@ import javax.persistence.*
 data class Avatar(
         @Column(name = "path")
         var path: String = "",
-        @OneToOne
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "user_id")
         var user: User? = null,
         @Column(name = "name")
-        var name: String = ""
+        var name: String = "",
+        @Column(name = "file_name")
+        var fileName: String = ""
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -26,5 +28,7 @@ data class Avatar(
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanAvatar
         trueBean.userId = this.user?.id ?: -1
+        trueBean.name = this.name
+        trueBean.fileName = this.fileName
     }
 }
