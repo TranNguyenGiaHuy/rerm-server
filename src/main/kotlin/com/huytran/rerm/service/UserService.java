@@ -9,7 +9,6 @@ import com.huytran.rerm.service.core.CoreService;
 import com.huytran.rerm.utilities.UtilityFunction;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 @Service
@@ -47,6 +46,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         String idCard;
         Long tsCardDated;
         Long tsDateOfBirth;
+        String placeOfPermanent;
 
         public Params(String name,
                       String password,
@@ -55,7 +55,8 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
                       String phoneNumber,
                       String idCard,
                       Long tsCardDated,
-                      Long tsDateOfBirth) {
+                      Long tsDateOfBirth,
+                      String placeOfPermanent) {
             this.name = name;
             this.password = password;
             this.userName = userName;
@@ -64,6 +65,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
             this.idCard = idCard;
             this.tsCardDated = tsCardDated;
             this.tsDateOfBirth = tsDateOfBirth;
+            this.placeOfPermanent = placeOfPermanent;
         }
 
         public Params(String name,
@@ -76,6 +78,33 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
             this.idCard = "";
             this.tsCardDated = 0L;
             this.tsDateOfBirth = 0L;
+            this.placeOfPermanent = "";
+        }
+    }
+
+    public static class UpdateParams extends CoreService.AbstractParams {
+        String name;
+        String userName;
+        String phoneNumber;
+        String idCard;
+        Long tsCardDated;
+        Long tsDateOfBirth;
+        String placeOfPermanent;
+
+        public UpdateParams(String name,
+                            String userName,
+                            String phoneNumber,
+                            String idCard,
+                            Long tsCardDated,
+                            Long tsDateOfBirth,
+                            String placeOfPermanent) {
+            this.name = name;
+            this.userName = userName;
+            this.phoneNumber = phoneNumber;
+            this.idCard = idCard;
+            this.tsCardDated = tsCardDated;
+            this.tsDateOfBirth = tsDateOfBirth;
+            this.placeOfPermanent = placeOfPermanent;
         }
     }
 
@@ -181,7 +210,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         }
 
         Long userId = ((BeanGrpcSession) getGrpcTokenResult.getBean()).getUserId();
-        Optional<User> optionalUser = userRepository.findById(userId);
+        Optional<User> optionalUser = userRepository.findByIdAndAvailable(userId, true);
         if (!optionalUser.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;
@@ -195,5 +224,40 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
     public BeanResult loginWithToken() {
         return grpcSessionService.checkLogin();
 
+    }
+
+    public BeanResult update(UpdateParams updateParams) {
+        BeanResult beanResult = new BeanResult();
+
+        BeanResult getGrpcTokenResult = grpcSessionService.getSession();
+
+        if (getGrpcTokenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokenResult.getBean() == null
+                || !(getGrpcTokenResult.getBean() instanceof BeanGrpcSession)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        Long userId = ((BeanGrpcSession) getGrpcTokenResult.getBean()).getUserId();
+        Optional<User> optionalUser = userRepository.findByIdAndAvailable(userId, true);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+        User user = optionalUser.get();
+
+        user.setName(updateParams.name);
+        user.setUserName(updateParams.userName);
+        user.setPhoneNumber(updateParams.phoneNumber);
+        user.setIdCard(updateParams.idCard);
+        user.setTsCardDated(updateParams.tsCardDated);
+        user.setTsDateOfBirth(updateParams.tsDateOfBirth);
+        user.setPlaceOfPermanent(updateParams.placeOfPermanent);
+
+        userRepository.save(user);
+
+        beanResult.setBean(user.createBean());
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
     }
 }

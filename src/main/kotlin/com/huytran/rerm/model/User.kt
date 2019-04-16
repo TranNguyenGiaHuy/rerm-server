@@ -23,6 +23,8 @@ data class User(
         var tsCardDated: Long = 0,
         @Column(name = "ts_date_of_birth")
         var tsDateOfBirth: Long = 0,
+        @Column(name = "place_of_permanent")
+        var placeOfPermanent: String = "",
         @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
         var roomList: List<Room> = emptyList(),
         @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
@@ -43,5 +45,11 @@ data class User(
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanUser
         trueBean.name = this.name
+        trueBean.userName = this.userName
+        trueBean.phoneNumber = this.phoneNumber
+        trueBean.idCard = this.idCard
+        trueBean.tsCardDated = this.tsCardDated
+        trueBean.tsDateOfBirth = this.tsDateOfBirth
+        trueBean.placeOfPermanent = this.placeOfPermanent
     }
 }

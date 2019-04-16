@@ -68,6 +68,7 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                     .setIdCard(bean.idCard)
                     .setTsCardDated(bean.tsCardDated)
                     .setTsDateOfBirth(bean.tsDateOfBirth)
+                    .setPlaceOfPermanent(bean.placeOfPermanent)
                     .setId(bean.id)
         }
 
@@ -91,5 +92,41 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
         responseObserver?.onNext(response)
         responseObserver?.onCompleted()
     }
+
+    override fun updateUserInfo(request: UpdateUserInfoRequest?, responseObserver: StreamObserver<UpdateUserInfoResponse>?) {
+        val updateInfoResult = userService.update(
+                UserService.UpdateParams(
+                        request?.name,
+                        request?.userName,
+                        request?.phoneNumber,
+                        request?.idCard,
+                        request?.tsCardDated,
+                        request?.tsDateOfBirth,
+                        request?.placeOfPermanent)
+        )
+
+        val response = UpdateUserInfoResponse.newBuilder()
+                .setResultCode(updateInfoResult.code)
+
+        if (updateInfoResult.code == ResultCode.RESULT_CODE_VALID
+                && updateInfoResult.bean != null
+                && updateInfoResult.bean is BeanUser) {
+            val bean = updateInfoResult.bean as BeanUser
+            response
+                    .setName(bean.name)
+                    .setUserName(bean.userName)
+                    .setAvatarId(bean.avatarId)
+                    .setPhoneNumber(bean.phoneNumber)
+                    .setIdCard(bean.idCard)
+                    .setTsCardDated(bean.tsCardDated)
+                    .setTsDateOfBirth(bean.tsDateOfBirth)
+                    .setPlaceOfPermanent(bean.placeOfPermanent)
+                    .setId(bean.id)
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
 
 }
