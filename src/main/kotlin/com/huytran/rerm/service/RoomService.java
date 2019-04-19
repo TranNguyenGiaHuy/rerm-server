@@ -1,21 +1,32 @@
 package com.huytran.rerm.service;
 
+import com.huytran.rerm.bean.BeanGrpcSession;
+import com.huytran.rerm.bean.core.BeanResult;
+import com.huytran.rerm.constant.ResultCode;
 import com.huytran.rerm.model.Room;
 import com.huytran.rerm.model.User;
 import com.huytran.rerm.repository.RoomRepository;
+import com.huytran.rerm.repository.UserRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class RoomService extends CoreService<Room, RoomRepository, RoomService.Params> {
 
     private RoomRepository roomRepository;
+    private GrpcSessionService grpcSessionService;
+    private UserRepository userRepository;
 
     RoomService(
-            RoomRepository roomRepository
-    ) {
+            RoomRepository roomRepository,
+            GrpcSessionService grpcSessionService,
+            UserRepository userRepository) {
         super(roomRepository);
         this.roomRepository = roomRepository;
+        this.grpcSessionService = grpcSessionService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -25,6 +36,7 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
 
     @Override
     public void parseParams(Room room, Params params) {
+        room.setTitle(params.title);
         room.setSquare(params.square);
         room.setAddress(params.address);
         room.setPrice(params.price);
@@ -40,6 +52,7 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
     }
 
     public class Params extends CoreService.AbstractParams {
+        String title;
         Float square;
         String address;
         Long price;
@@ -52,6 +65,112 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         Long prepaid;
         String description;
         User owner;
+
+        public Params(String title,
+                      Float square,
+                      String address,
+                      Long price,
+                      Integer type,
+                      Integer numberOfFloor,
+                      Boolean hasFurniture,
+                      Integer maxMember,
+                      Boolean cookingAllowance,
+                      Integer homeType,
+                      Long prepaid,
+                      String description,
+                      User owner) {
+            this.title = title;
+            this.square = square;
+            this.address = address;
+            this.price = price;
+            this.type = type;
+            this.numberOfFloor = numberOfFloor;
+            this.hasFurniture = hasFurniture;
+            this.maxMember = maxMember;
+            this.cookingAllowance = cookingAllowance;
+            this.homeType = homeType;
+            this.prepaid = prepaid;
+            this.description = description;
+            this.owner = owner;
+        }
+    }
+
+    public static class CreateParams extends CoreService.AbstractParams {
+        String title;
+        Float square;
+        String address;
+        Long price;
+        Integer type;
+        Integer numberOfFloor;
+        Boolean hasFurniture;
+        Integer maxMember;
+        Boolean cookingAllowance;
+        Integer homeType;
+        Long prepaid;
+        String description;
+
+        public CreateParams(String title,
+                            Float square,
+                            String address,
+                            Long price,
+                            Integer type,
+                            Integer numberOfFloor,
+                            Boolean hasFurniture,
+                            Integer maxMember,
+                            Boolean cookingAllowance,
+                            Integer homeType,
+                            Long prepaid,
+                            String description) {
+            this.title = title;
+            this.square = square;
+            this.address = address;
+            this.price = price;
+            this.type = type;
+            this.numberOfFloor = numberOfFloor;
+            this.hasFurniture = hasFurniture;
+            this.maxMember = maxMember;
+            this.cookingAllowance = cookingAllowance;
+            this.homeType = homeType;
+            this.prepaid = prepaid;
+            this.description = description;
+        }
+    }
+
+    public BeanResult create(CreateParams createParams) {
+        BeanResult beanResult = new BeanResult();
+        BeanResult getGrpcTokenResult = grpcSessionService.getSession();
+
+        if (getGrpcTokenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokenResult.getBean() == null
+                || !(getGrpcTokenResult.getBean() instanceof BeanGrpcSession)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        Long userId = ((BeanGrpcSession) getGrpcTokenResult.getBean()).getUserId();
+        Optional<User> optionalUser = userRepository.findByIdAndAvailable(userId, true);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        return create(
+                new Params(
+                        createParams.title,
+                        createParams.square,
+                        createParams.address,
+                        createParams.price,
+                        createParams.type,
+                        createParams.numberOfFloor,
+                        createParams.hasFurniture,
+                        createParams.maxMember,
+                        createParams.cookingAllowance,
+                        createParams.homeType,
+                        createParams.prepaid,
+                        createParams.description,
+                        optionalUser.get()
+                )
+        );
     }
 
 }

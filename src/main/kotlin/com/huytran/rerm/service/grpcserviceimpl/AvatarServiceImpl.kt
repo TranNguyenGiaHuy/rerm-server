@@ -58,6 +58,7 @@ class AvatarServiceImpl(private val avatarService: AvatarService) : AvatarServic
     override fun downloadAvatar(request: DownloadAvatarRequest?, responseObserver: StreamObserver<DownloadAvatarResponse>?) {
         val downloadResult = avatarService.download()
         if (downloadResult.code != ResultCode.RESULT_CODE_VALID
+                || downloadResult.bean == null
                 || downloadResult.bean !is BeanAvatar
                 || (downloadResult.bean as BeanAvatar).content.isEmpty()) {
             responseObserver?.onNext(

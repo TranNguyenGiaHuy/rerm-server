@@ -37,15 +37,15 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
                 )
                 val response = UploadFileResponse.newBuilder()
                         .setResultCode(createResult.code)
-                if (createResult.code == ResultCode.RESULT_CODE_VALID
-                        && createResult.bean != null
-                        && createResult.bean is BeanImage) {
-                    val bean = createResult.bean as BeanImage
-                    response.setName(bean.name)
-                            .setRoomId(bean.roomId)
-                            .setResultCode(ResultCode.RESULT_CODE_VALID)
-                            .setId(bean.id)
-                }
+//                if (createResult.code == ResultCode.RESULT_CODE_VALID
+//                        && createResult.bean != null
+//                        && createResult.bean is BeanImage) {
+//                    val bean = createResult.bean as BeanImage
+//                    response.setName(bean.name)
+//                            .setRoomId(bean.roomId)
+//                            .setResultCode(ResultCode.RESULT_CODE_VALID)
+//                            .setId(bean.id)
+//                }
 
                 responseObserver?.onNext(
                         response.build()
@@ -58,16 +58,22 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
         val downloadResult = imageService.download(
                 request?.id
         )
-        if (downloadResult.isEmpty()) {
+        if (downloadResult.code != ResultCode.RESULT_CODE_VALID
+                || downloadResult.bean == null
+                || downloadResult.bean !is BeanImage
+                || (downloadResult.bean as BeanImage).content.isEmpty()) {
             responseObserver?.onNext(
                     DownloadResponse.newBuilder()
-                            .setResultCode(ResultCode.RESULT_CODE_INVALID)
+                            .setResultCode(downloadResult.code)
                             .build()
             )
             responseObserver?.onCompleted()
         }
+
+        val beanImage = downloadResult.bean as BeanImage
+
         val imageStream = BufferedInputStream(
-                downloadResult.inputStream()
+                beanImage.content.inputStream()
         )
         val bufferSize = 256 * 1024 //256k
         val buffer = ByteArray(bufferSize)
@@ -77,7 +83,9 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
                 responseObserver?.onNext(
                         DownloadResponse.newBuilder()
                                 .setImage(ByteString.copyFrom(buffer, 0, length))
-                                .setResultCode(ResultCode.RESULT_CODE_VALID)
+                                .setResultCode(downloadResult.code)
+                                .setName(beanImage.name)
+                                .setFileName(beanImage.fileName)
                                 .build()
                 )
                 length = imageStream.read(buffer, 0, bufferSize)

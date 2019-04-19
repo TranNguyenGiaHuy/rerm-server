@@ -1,5 +1,6 @@
 package com.huytran.rerm.service;
 
+import com.huytran.rerm.bean.BeanImage;
 import com.huytran.rerm.bean.core.BeanList;
 import com.huytran.rerm.bean.core.BeanResult;
 import com.huytran.rerm.config.PropertyConfig;
@@ -54,13 +55,16 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
         Room room;
         String path;
         String name;
+        String fileName;
 
         Params(Room room,
                String path,
-               String name) {
+               String name,
+               String fileName) {
             this.room = room;
             this.path = path;
             this.name = name;
+            this.fileName = fileName;
         }
     }
 
@@ -78,7 +82,8 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
         }
 
         // add image here
-        String pathString = propertyConfig.getImageFolder() + UtilityFunction.Companion.getUUID();
+        String fileName = UtilityFunction.Companion.getUUID();
+        String pathString = propertyConfig.getImageFolder() + fileName;
         try {
             UtilityFunction.Companion.writeFileToPath(
                     pathString,
@@ -93,20 +98,31 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
                 new Params(
                         optionalRoom.get(),
                         pathString,
-                        name
+                        name,
+                        fileName
                 )
         );
     }
 
-    public byte[] download(Long id) {
-        Optional<Image> optionalImage = imageRepository.findById(id);
-        return optionalImage.map(image ->
-                UtilityFunction.Companion.downloadFileFromPath(image.getPath())
-        )
-                .orElseGet(() ->
-                        new byte[0]
-                );
+    public BeanResult download(Long id) {
+        BeanResult beanResult = new BeanResult();
 
+        Optional<Image> optionalImage = imageRepository.findById(id);
+
+        if (!optionalImage.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        Image image = optionalImage.get();
+        BeanImage beanImage = (BeanImage) image.createBean();
+
+        beanImage.setContent(
+                        UtilityFunction.Companion.downloadFileFromPath(image.getPath())
+        );
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
     }
 
     public BeanResult getAllOfRoom(Long id) {

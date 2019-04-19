@@ -13,7 +13,9 @@ data class Image(
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
         var room: Room? = null,
         @Column(name = "name")
-        var name: String = ""
+        var name: String = "",
+        @Column(name = "file_name")
+        var fileName: String = ""
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -24,5 +26,7 @@ data class Image(
         super.parseToBean(beanBasic)
         val trueBean = beanBasic as BeanImage
         trueBean.roomId = this.room?.id ?: -1
+        trueBean.name = this.name
+        trueBean.fileName = this.fileName
     }
 }

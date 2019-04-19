@@ -7,6 +7,8 @@ import javax.persistence.*
 
 @Entity(name = "room")
 data class Room(
+        @Column(name = "title")
+        var title: String = "",
         @Column(name = "square")
         var square: Float = 0f,
         @Column(name = "address")
@@ -44,6 +46,7 @@ data class Room(
         super.parseToBean(beanBasic)
         val bean = beanBasic as BeanRoom
 
+        bean.title = this.title
         bean.square = this.square
         bean.address = this.address
         bean.price = this.price
