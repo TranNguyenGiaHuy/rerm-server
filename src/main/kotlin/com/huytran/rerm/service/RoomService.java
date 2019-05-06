@@ -1,6 +1,7 @@
 package com.huytran.rerm.service;
 
 import com.huytran.rerm.bean.BeanGrpcSession;
+import com.huytran.rerm.bean.core.BeanList;
 import com.huytran.rerm.bean.core.BeanResult;
 import com.huytran.rerm.constant.ResultCode;
 import com.huytran.rerm.model.Room;

@@ -32,8 +32,10 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
             override fun onCompleted() {
                 val createResult = imageService.create(
                         roomId,
-                        result.toByteArray(),
-                        name
+                        ImageService.ImageParams(
+                                result.toByteArray(),
+                                name
+                        )
                 )
                 val response = UploadFileResponse.newBuilder()
                         .setResultCode(createResult.code)
@@ -50,6 +52,7 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
                 responseObserver?.onNext(
                         response.build()
                 )
+                responseObserver?.onCompleted()
             }
         }
     }
@@ -120,6 +123,49 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
 
         responseObserver?.onNext(response.build())
         responseObserver?.onCompleted()
+    }
+
+    override fun uploadMultiImage(responseObserver: StreamObserver<UploadMultiImageResponse>?): StreamObserver<UploadMultiImageRequest> {
+        return object: StreamObserver<UploadMultiImageRequest> {
+
+            val content = ByteArrayOutputStream()
+            val imageParamsList = arrayListOf<ImageService.ImageParams>()
+            var roomId : Long? = null
+
+            override fun onNext(p0: UploadMultiImageRequest?) {
+                roomId = p0?.roomId
+
+                content.write(p0?.image?.content?.toByteArray())
+                if (p0?.image?.isLast!!) {
+                    imageParamsList.add(
+                            ImageService.ImageParams(
+                                    content.toByteArray(),
+                                    p0.image.name
+                            )
+                    )
+
+                    content.reset()
+                }
+            }
+
+            override fun onError(p0: Throwable?) {
+            }
+
+            override fun onCompleted() {
+                content.close()
+                val createResult = imageService.create(
+                        roomId,
+                        imageParamsList
+                )
+                val response = UploadMultiImageResponse.newBuilder()
+                        .setResultCode(createResult.code)
+                        .build()
+
+                responseObserver?.onNext(response)
+                responseObserver?.onCompleted()
+            }
+
+        }
     }
 
 }

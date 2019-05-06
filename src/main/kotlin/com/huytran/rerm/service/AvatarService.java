@@ -11,6 +11,7 @@ import com.huytran.rerm.repository.AvatarRepository;
 import com.huytran.rerm.repository.UserRepository;
 import com.huytran.rerm.service.core.CoreService;
 import com.huytran.rerm.utilities.UtilityFunction;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -119,7 +120,7 @@ public class AvatarService extends CoreService<Avatar, AvatarRepository, AvatarS
         BeanResult getSessionResult = grpcSessionService.getSession();
         if (getSessionResult.getCode() != ResultCode.RESULT_CODE_VALID
                 || getSessionResult.getBean() == null
-                || getSessionResult.getBean() instanceof BeanGrpcSession) {
+                || !(getSessionResult.getBean() instanceof BeanGrpcSession)) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
             return beanResult;
         }
@@ -131,10 +132,8 @@ public class AvatarService extends CoreService<Avatar, AvatarRepository, AvatarS
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;
         }
-        Optional<Avatar> optionalAvatar = originalUser.get().getAvatarList()
-                .stream()
-                .filter(Avatar::getAvailable)
-                .findFirst();
+        Optional<Avatar> optionalAvatar = avatarRepository.findByAvailableAndUser(true, originalUser.get())
+                .stream().findFirst();
 
         if (!optionalAvatar.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_INVALID);
@@ -149,6 +148,82 @@ public class AvatarService extends CoreService<Avatar, AvatarRepository, AvatarS
 
         beanResult.setBean(avatarBean);
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+    }
+
+    public BeanResult downloadOfUser(long userId) {
+        BeanResult beanResult = new BeanResult();
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+//        Optional<Avatar> optionalAvatar = optionalUser.get().getAvatarList()
+//                .stream()
+//                .filter(Avatar::getAvailable)
+//                .findFirst();
+        Optional<Avatar> optionalAvatar = avatarRepository.findByAvailableAndUser(true, optionalUser.get())
+                .stream().findFirst();
+
+        if (!optionalAvatar.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_INVALID);
+            return beanResult;
+        }
+
+        Avatar avatar = optionalAvatar.get();
+        BeanAvatar avatarBean = (BeanAvatar) avatar.createBean();
+        avatarBean.setContent(
+                UtilityFunction.Companion.downloadFileFromPath(avatar.getPath())
+        );
+
+        beanResult.setBean(avatarBean);
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+
+    }
+
+    public BeanResult getOfUser(long userId) {
+        BeanResult beanResult = new BeanResult();
+
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        Optional<Avatar> optionalAvatar = avatarRepository.findByAvailableAndUser(true, optionalUser.get())
+                .stream().findFirst();
+
+        if (!optionalAvatar.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_INVALID);
+            return beanResult;
+        }
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(
+                optionalAvatar.get().createBean()
+        );
+        return beanResult;
+    }
+
+    public BeanResult downloadWithId(long id) {
+        BeanResult beanResult = new BeanResult();
+
+        Optional<Avatar> optionalAvatar = avatarRepository.findById(id);
+        if (!optionalAvatar.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        BeanAvatar beanAvatar = (BeanAvatar) optionalAvatar.get().createBean();
+        beanAvatar.setContent(
+                UtilityFunction.Companion.downloadFileFromPath(optionalAvatar.get().getPath())
+        );
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(beanAvatar);
         return beanResult;
     }
 }

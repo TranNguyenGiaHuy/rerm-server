@@ -11,13 +11,10 @@ import com.huytran.rerm.repository.ImageRepository;
 import com.huytran.rerm.repository.RoomRepository;
 import com.huytran.rerm.service.core.CoreService;
 import com.huytran.rerm.utilities.UtilityFunction;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,9 +65,19 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
         }
     }
 
-    public BeanResult create(Long roomId, byte[] image, String name) {
+    public static class ImageParams {
+        byte[] content;
+        String name;
+
+        public ImageParams(byte[] content, String name) {
+            this.content = content;
+            this.name = name;
+        }
+    }
+
+    public BeanResult create(Long roomId, ImageParams imageParams) {
         BeanResult beanResult = new BeanResult();
-        if (image == null) {
+        if (imageParams.content == null) {
             beanResult.setCode(ResultCode.RESULT_CODE_INVALID_IMAGE);
             return beanResult;
         }
@@ -87,7 +94,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
         try {
             UtilityFunction.Companion.writeFileToPath(
                     pathString,
-                    image
+                    imageParams.content
             );
         } catch (IOException e) {
             beanResult.setCode(ResultCode.RESULT_CODE_SAVE_IMAGE_FAIL);
@@ -98,10 +105,52 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
                 new Params(
                         optionalRoom.get(),
                         pathString,
-                        name,
+                        imageParams.name,
                         fileName
                 )
         );
+    }
+
+    public BeanResult create(Long roomId, List<ImageParams> imageParamsList) {
+        BeanResult beanResult = new BeanResult();
+
+        Optional<Room> optionalRoom = roomRepository.findById(roomId);
+        if (!optionalRoom.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        List<Image> uploadedImage = new ArrayList<>();
+        imageParamsList.forEach(imageParams -> {
+
+            // add image here
+            String fileName = UtilityFunction.Companion.getUUID();
+            String pathString = propertyConfig.getImageFolder() + fileName;
+            try {
+                UtilityFunction.Companion.writeFileToPath(
+                        pathString,
+                        imageParams.content
+                );
+            } catch (IOException e) {
+                return;
+            }
+
+            Image image = new Image();
+            parseParams(
+                    image,
+                    new Params(
+                            optionalRoom.get(),
+                            pathString,
+                            imageParams.name,
+                            fileName
+                    )
+            );
+            uploadedImage.add(image);
+        });
+
+        imageRepository.saveAll(uploadedImage);
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
     }
 
     public BeanResult download(Long id) {
@@ -118,7 +167,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
         BeanImage beanImage = (BeanImage) image.createBean();
 
         beanImage.setContent(
-                        UtilityFunction.Companion.downloadFileFromPath(image.getPath())
+                UtilityFunction.Companion.downloadFileFromPath(image.getPath())
         );
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);

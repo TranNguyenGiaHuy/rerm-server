@@ -16,4 +16,6 @@ class BeanRoom : BeanBasic() {
     var prepaid: Long = 0
     var description: String = ""
     var owner: Long = 0
+
+    var ownerName: String = ""
 }

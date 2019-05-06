@@ -59,5 +59,7 @@ data class Room(
         bean.prepaid = this.prepaid
         bean.description = this.description
         bean.owner = this.owner?.id ?: -1
+
+        bean.ownerName = this.owner?.userName ?: ""
     }
 }

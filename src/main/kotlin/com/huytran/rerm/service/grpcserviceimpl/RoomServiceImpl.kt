@@ -63,6 +63,9 @@ class RoomServiceImpl(private val roomService: RoomService) : RoomServiceGrpc.Ro
                                 .setHomeType(bean.homeType)
                                 .setPrepaid(bean.prepaid)
                                 .setDescription(bean.description)
+
+                                .setOwnerId(bean.owner)
+                                .setOwnerName(bean.ownerName)
                 )
             }
         }
