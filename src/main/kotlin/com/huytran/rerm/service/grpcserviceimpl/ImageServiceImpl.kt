@@ -26,7 +26,7 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
             }
 
             override fun onError(p0: Throwable?) {
-
+                p0?.printStackTrace()
             }
 
             override fun onCompleted() {
@@ -71,6 +71,7 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
                             .build()
             )
             responseObserver?.onCompleted()
+            return
         }
 
         val beanImage = downloadResult.bean as BeanImage
@@ -114,7 +115,7 @@ class ImageServiceImpl(private val imageService: ImageService) : ImageServiceGrp
         if (getFileListResult.code == ResultCode.RESULT_CODE_VALID
                 && getFileListResult.bean != null
                 && getFileListResult.bean is BeanList) {
-            response.addAllFileIdList(
+            response.addAllFileId(
                     (getFileListResult.bean as BeanList).listBean.map {
                         (it as BeanImage).id
                     }

@@ -171,6 +171,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
         );
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(beanImage);
         return beanResult;
     }
 
@@ -184,7 +185,7 @@ public class ImageService extends CoreService<Image, ImageRepository, ImageServi
 
         Room room = optionalRoom.get();
         // get all file
-        List<Image> imageList = room.getImageList();
+        List<Image> imageList = imageRepository.findByRoomId(room.getId());
         beanResult.setBean(
                 new BeanList(
                         imageList

@@ -31,9 +31,13 @@ class RoomServiceImpl(private val roomService: RoomService) : RoomServiceGrpc.Ro
 
         val response = CreateRoomResponse.newBuilder()
                 .setResultCode(createResult.code)
-                .build()
+        if (createResult.code == ResultCode.RESULT_CODE_VALID
+                && createResult.bean != null
+                && createResult.bean is BeanRoom) {
+            response.roomId = (createResult.bean as BeanRoom).id
+        }
 
-        responseObserver?.onNext(response)
+        responseObserver?.onNext(response.build())
         responseObserver?.onCompleted()
     }
 
@@ -51,6 +55,7 @@ class RoomServiceImpl(private val roomService: RoomService) : RoomServiceGrpc.Ro
                 val bean = beanBasic as BeanRoom
                 response.addRoom(
                         Room.newBuilder()
+                                .setId(bean.id)
                                 .setTitle(bean.title)
                                 .setSquare(bean.square)
                                 .setAddress(bean.address)
