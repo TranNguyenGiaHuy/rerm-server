@@ -34,7 +34,10 @@ data class User(
         @OneToMany(mappedBy = "payer", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
         var paymentList: List<Payment> = emptyList(),
         @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-        var grpcSessionList: List<GrpcSession> = emptyList()
+        var grpcSessionList: List<GrpcSession> = emptyList(),
+
+        @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+        var savedRoomList: List<SavedRoom> = emptyList()
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {

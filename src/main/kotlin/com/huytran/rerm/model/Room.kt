@@ -36,7 +36,11 @@ data class Room(
         @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
         var imageList: List<Image> = emptyList(),
         @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
-        var contractList: List<Contract> = emptyList()) : ModelCore() {
+        var contractList: List<Contract> = emptyList(),
+
+        @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+        var savedRoomList: List<SavedRoom> = emptyList()
+        ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
         return BeanRoom()
