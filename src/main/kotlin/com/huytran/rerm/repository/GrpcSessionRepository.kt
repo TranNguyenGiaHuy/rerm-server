@@ -9,4 +9,6 @@ import java.util.*
 @Repository
 interface GrpcSessionRepository : RepositoryCore<GrpcSession, Long> {
     fun findByToken(token: String): Optional<GrpcSession>
+
+    fun findByUser_IdAndAvailable(userId: Long, available: Boolean): List<GrpcSession>
 }

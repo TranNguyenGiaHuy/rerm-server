@@ -8,6 +8,7 @@ import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.OneToMany
 
+@Deprecated("No Use")
 @Entity(name = "contract_term")
 data class ContractTerm(
         @Column(name = "name")

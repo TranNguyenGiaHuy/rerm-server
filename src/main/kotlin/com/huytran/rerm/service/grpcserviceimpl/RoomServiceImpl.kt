@@ -26,7 +26,10 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
                         request?.room?.cookingAllowance,
                         request?.room?.homeType,
                         request?.room?.prepaid,
-                        request?.room?.description
+                        request?.room?.description,
+                        request?.room?.term,
+                        request?.room?.electricityPrice,
+                        request?.room?.waterPrice
                 )
         )
 
@@ -102,6 +105,9 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
 
                 .setOwnerId(bean.owner)
                 .setOwnerName(bean.ownerName)
+                .setTerm(bean.term)
+                .setElectricityPrice(bean.electricityPrice)
+                .setWaterPrice(bean.waterPrice)
     }
 
 }

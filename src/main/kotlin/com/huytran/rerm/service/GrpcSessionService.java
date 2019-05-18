@@ -32,9 +32,10 @@ public class GrpcSessionService extends CoreService<GrpcSession, GrpcSessionRepo
     }
 
     @Override
-    public void parseParams(GrpcSession image, Params params) {
-        image.setUser(params.user);
-        image.setToken(params.token);
+    public void parseParams(GrpcSession grpcSession, Params params) {
+        grpcSession.setUser(params.user);
+        grpcSession.setToken(params.token);
+        grpcSession.setFirebaseToken("");
     }
 
     public static class Params extends CoreService.AbstractParams {
@@ -109,6 +110,30 @@ public class GrpcSessionService extends CoreService<GrpcSession, GrpcSessionRepo
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
             return beanResult;
         }
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+    }
+
+    public BeanResult addFirebaseToken(String firebaseToken) {
+        BeanResult beanResult = new BeanResult();
+
+        String token = SecurityInterceptor.Companion.getUSER_IDENTITY().get();
+        if (token.isEmpty()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            return beanResult;
+        }
+
+        Optional<GrpcSession> grpcSessionOptional = grpcSessionRepository.findByToken(token);
+        if (!grpcSessionOptional.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            return beanResult;
+        }
+
+        GrpcSession grpcSession = grpcSessionOptional.get();
+        grpcSession.setFirebaseToken(firebaseToken);
+        grpcSession.setTsLastModified(System.currentTimeMillis());
+        grpcSessionRepository.save(grpcSession);
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         return beanResult;

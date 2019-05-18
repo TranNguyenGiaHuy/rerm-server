@@ -7,6 +7,7 @@ import com.huytran.rerm.repository.ContractContractTermRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
 
+@Deprecated
 @Service
 public class ContractContractTermService extends CoreService<ContractContractTerm, ContractContractTermRepository, ContractContractTermService.Params> {
 

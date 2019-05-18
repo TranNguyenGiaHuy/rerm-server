@@ -12,4 +12,5 @@ class BeanContract : BeanBasic() {
     var numberOfRoom: Long = -1
     var transactionId: Long = -1
     var roomId: Long = -1
+    var term: String = ""
 }

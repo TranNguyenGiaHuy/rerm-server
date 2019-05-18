@@ -11,6 +11,7 @@ import com.huytran.rerm.service.ContractTermService
 import io.grpc.stub.StreamObserver
 import org.lognet.springboot.grpc.GRpcService
 
+@Deprecated("No Use")
 @GRpcService
 class ContractTermServiceImpl(private val contractTermService: ContractTermService): ContractTermServiceGrpc.ContractTermServiceImplBase() {
 

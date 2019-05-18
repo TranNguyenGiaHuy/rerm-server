@@ -50,6 +50,7 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         room.setPrepaid(params.prepaid);
         room.setDescription(params.description);
         room.setOwner(params.owner);
+        room.setTerm(params.term);
     }
 
     public class Params extends CoreService.AbstractParams {
@@ -65,6 +66,9 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         Integer homeType;
         Long prepaid;
         String description;
+        String term;
+        Long electricityPrice;
+        Long waterPrice;
         User owner;
 
         public Params(String title,
@@ -79,6 +83,9 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
                       Integer homeType,
                       Long prepaid,
                       String description,
+                      String term,
+                      Long electricityPrice,
+                      Long waterPrice,
                       User owner) {
             this.title = title;
             this.square = square;
@@ -92,6 +99,9 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
             this.homeType = homeType;
             this.prepaid = prepaid;
             this.description = description;
+            this.term = term;
+            this.electricityPrice = electricityPrice;
+            this.waterPrice = waterPrice;
             this.owner = owner;
         }
     }
@@ -109,6 +119,9 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         Integer homeType;
         Long prepaid;
         String description;
+        String term;
+        Long electricityPrice;
+        Long waterPrice;
 
         public CreateParams(String title,
                             Float square,
@@ -121,7 +134,10 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
                             Boolean cookingAllowance,
                             Integer homeType,
                             Long prepaid,
-                            String description) {
+                            String description,
+                            String term,
+                            Long electricityPrice,
+                            Long waterPrice) {
             this.title = title;
             this.square = square;
             this.address = address;
@@ -134,6 +150,9 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
             this.homeType = homeType;
             this.prepaid = prepaid;
             this.description = description;
+            this.electricityPrice = electricityPrice;
+            this.waterPrice = waterPrice;
+            this.term = term;
         }
     }
 
@@ -169,6 +188,9 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
                         createParams.homeType,
                         createParams.prepaid,
                         createParams.description,
+                        createParams.term,
+                        createParams.electricityPrice,
+                        createParams.waterPrice,
                         optionalUser.get()
                 )
         );

@@ -21,14 +21,17 @@ data class Contract(
         var prepaid: Long = -1,
         @Column(name = "mode_of_payment")
         var modeOPayment: Int = -1,
+        @Column(name = "term")
+        var term: String = "",
         @Column(name = "number_of_room")
         var numberOfRoom: Long = -1,
         @Column(name = "transaction_id")
         var transactionId: Long = -1,
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
-        var room: Room? = null,
-        @OneToMany(mappedBy = "contract" ,fetch = FetchType.LAZY)
-        var contractContractTermList: List<ContractContractTerm> = emptyList()
+        var room: Room? = null
+//        @OneToMany(mappedBy = "contract" ,fetch = FetchType.LAZY)
+//        var contractContractTermList: List<ContractContractTerm> = emptyList()
+
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
@@ -46,6 +49,7 @@ data class Contract(
         trueBean.modeOPayment = this.modeOPayment
         trueBean.numberOfRoom = this.numberOfRoom
         trueBean.transactionId = this.transactionId
+        trueBean.term = this.term
         trueBean.roomId = this.room?.id ?: -1
     }
 }

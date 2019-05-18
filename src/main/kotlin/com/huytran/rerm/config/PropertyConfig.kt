@@ -9,4 +9,7 @@ class PropertyConfig {
     @Value("\${image.path}")
     lateinit var imageFolder: String
 
+    @Value("\${firebase.key}")
+    lateinit var firebaseKey: String
+
 }

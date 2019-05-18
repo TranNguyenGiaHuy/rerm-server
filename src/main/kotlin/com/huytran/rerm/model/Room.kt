@@ -31,6 +31,13 @@ data class Room(
         var prepaid: Long = 0,
         @Column(name = "description")
         var description: String = "",
+        @Column(name = "term")
+        var term: String = "",
+        @Column(name = "electricity_price")
+        var electricityPrice: Long = 0,
+        @Column(name = "water_price")
+        var waterPrice: Long = 0,
+
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "owner")
         var owner: User? = null,
         @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
@@ -62,6 +69,9 @@ data class Room(
         bean.homeType = this.homeType
         bean.prepaid = this.prepaid
         bean.description = this.description
+        bean.term = this.term
+        bean.electricityPrice = this.electricityPrice
+        bean.waterPrice = this.waterPrice
         bean.owner = this.owner?.id ?: -1
 
         bean.ownerName = this.owner?.userName ?: ""

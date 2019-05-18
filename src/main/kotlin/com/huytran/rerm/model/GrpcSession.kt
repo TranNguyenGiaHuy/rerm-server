@@ -11,7 +11,9 @@ data class GrpcSession(
         @JoinColumn(name = "user_id")
         var user: User? = null,
         @Column(name = "token", unique = true)
-        var token: String = "") : ModelCore() {
+        var token: String = "",
+        @Column(name = "firebase_token")
+        var firebaseToken: String = "") : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {
         return BeanGrpcSession()
@@ -23,5 +25,6 @@ data class GrpcSession(
 
         bean.userId = this.user?.id ?: -1
         bean.token = this.token
+        bean.firebaseToken = this.firebaseToken
     }
 }

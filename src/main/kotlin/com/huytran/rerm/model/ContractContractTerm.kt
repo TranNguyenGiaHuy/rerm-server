@@ -8,6 +8,7 @@ import com.huytran.rerm.bean.core.BeanBasic
 import com.huytran.rerm.model.core.ModelCore
 import javax.persistence.*
 
+@Deprecated("No Use")
 @Entity(name = "contract_contract_term")
 data class ContractContractTerm(
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "contract_id")
