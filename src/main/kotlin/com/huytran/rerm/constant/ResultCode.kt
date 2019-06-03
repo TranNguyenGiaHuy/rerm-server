@@ -12,6 +12,7 @@ class ResultCode {
         const val RESULT_CODE_NOT_LOGIN = -6
         const val RESULT_CODE_INVALID_IMAGE = -7
         const val RESULT_CODE_SAVE_IMAGE_FAIL = -8
+        const val RESULT_CODE_PERMISSION_LIMITED = -9
     }
 
 }

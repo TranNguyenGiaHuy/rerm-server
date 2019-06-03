@@ -60,16 +60,7 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                 && getInfoResult.bean != null
                 && getInfoResult.bean is BeanUser) {
             val bean = getInfoResult.bean as BeanUser
-            response
-                    .setName(bean.name)
-                    .setUserName(bean.userName)
-                    .setAvatarId(bean.avatarId)
-                    .setPhoneNumber(bean.phoneNumber)
-                    .setIdCard(bean.idCard)
-                    .setTsCardDated(bean.tsCardDated)
-                    .setTsDateOfBirth(bean.tsDateOfBirth)
-                    .setPlaceOfPermanent(bean.placeOfPermanent)
-                    .setId(bean.id)
+            response.user = beanToUser(bean)
         }
 
         responseObserver?.onNext(response.build())
@@ -112,20 +103,39 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                 && updateInfoResult.bean != null
                 && updateInfoResult.bean is BeanUser) {
             val bean = updateInfoResult.bean as BeanUser
-            response
-                    .setName(bean.name)
-                    .setUserName(bean.userName)
-                    .setAvatarId(bean.avatarId)
-                    .setPhoneNumber(bean.phoneNumber)
-                    .setIdCard(bean.idCard)
-                    .setTsCardDated(bean.tsCardDated)
-                    .setTsDateOfBirth(bean.tsDateOfBirth)
-                    .setPlaceOfPermanent(bean.placeOfPermanent)
-                    .setId(bean.id)
+            response.user = beanToUser(bean)
         }
 
         responseObserver?.onNext(response.build())
         responseObserver?.onCompleted()
+    }
+
+    override fun getInfoOfUser(request: GetInfoOfUserRequest, responseObserver: StreamObserver<GetInfoOfUserResponse>?) {
+        val getInfoOfUserResult = userService.get(request.id)
+        val response = GetInfoOfUserResponse.newBuilder()
+                .setResultCode(getInfoOfUserResult.code)
+        if (getInfoOfUserResult.code == ResultCode.RESULT_CODE_VALID
+                && getInfoOfUserResult.bean != null
+                && getInfoOfUserResult.bean is BeanUser) {
+            response.user = beanToUser(getInfoOfUserResult.bean as BeanUser)
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    private fun beanToUser(bean : BeanUser) : User {
+        return User.newBuilder()
+                .setName(bean.name)
+                .setUserName(bean.userName)
+                .setAvatarId(bean.avatarId)
+                .setPhoneNumber(bean.phoneNumber)
+                .setIdCard(bean.idCard)
+                .setTsCardDated(bean.tsCardDated)
+                .setTsDateOfBirth(bean.tsDateOfBirth)
+                .setPlaceOfPermanent(bean.placeOfPermanent)
+                .setId(bean.id)
+                .build()
     }
 
 

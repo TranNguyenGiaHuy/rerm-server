@@ -19,6 +19,7 @@ class MessageServiceImpl(private val messageService: MessageService, private val
 
     override fun sendMessage(request: SendMessageRequest, responseObserver: StreamObserver<SendMessageResponse>?) {
         val sendMessageResult = messageService.sendMessageToUser(
+                "Message",
                 request.message,
                 request.to
         )

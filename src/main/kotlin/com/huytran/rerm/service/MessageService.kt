@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import javax.xml.crypto.Data
 
 
 @Service
@@ -19,7 +20,20 @@ class MessageService(private val grpcSessionRepository: GrpcSessionRepository, p
     private val FIREBASE_SERVER_KEY = propertyConfig.firebaseKey
     private val FIREBASE_API_URL = "https://fcm.googleapis.com/fcm/send"
 
-    fun sendMessageToUser(message: String, userId: Long): BeanResult {
+    enum class MessageType {
+        Data,
+        Notification
+    }
+
+    fun sendMessageToUser(title: String, message: String, userId: Long): BeanResult {
+        return sendNotification(title, message, userId, MessageType.Data)
+    }
+
+    fun sendNotificationToUser(title: String, message: String, userId: Long): BeanResult {
+        return sendNotification(title, message, userId, MessageType.Notification)
+    }
+
+    fun sendNotification(title: String, message: String, userId: Long, messageType: MessageType): BeanResult {
         val beanResult = BeanResult()
 
         val grpcSessionList = grpcSessionRepository.findByUser_IdAndAvailable(userId, true)
@@ -46,11 +60,18 @@ class MessageService(private val grpcSessionRepository: GrpcSessionRepository, p
         val messageJSON = JSONObject()
         val dataJSON = JSONObject()
 
-        messageJSON.put("title", senderUserId)
+        messageJSON.put("title", title)
         messageJSON.put("body", message)
+        messageJSON.put("sender", senderUserId)
         messageJSON.put("notificationType", AppConstants.MESSAGE_TYPE_MESSAGE)
 
-        dataJSON.put("data", messageJSON)
+        dataJSON.put(
+                when(messageType){
+                    MessageType.Data -> "data"
+                    MessageType.Notification -> "notification"
+
+                },
+                messageJSON)
         dataJSON.put(
                 "registration_ids",
                 grpcSessionList.map {

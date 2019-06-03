@@ -30,23 +30,33 @@ public class ContractService extends CoreService<Contract, ContractRepository, C
         contract.setRenter(params.renter);
         contract.setTsStart(params.tsStart);
         contract.setTsEnd(params.tsEnd);
-        contract.setPrepaid(params.prepaid);
+//        contract.setPrepaid(params.prepaid);
         contract.setModeOPayment(params.modeOPayment);
-        contract.setNumberOfRoom(params.numberOfRoom);
+//        contract.setNumberOfRoom(params.numberOfRoom);
         contract.setTransactionId(params.transactionId);
         contract.setRoom(params.room);
     }
 
-    public class Params extends CoreService.AbstractParams {
+    public static class Params extends CoreService.AbstractParams {
         User owner;
         User renter;
         Long tsStart;
         Long tsEnd;
-        Long prepaid;
+//        Long prepaid;
         Integer modeOPayment;
-        Long numberOfRoom;
+//        Long numberOfRoom;
         Long transactionId;
         Room room;
+
+        public Params(User owner, User renter, Long tsStart, Long tsEnd, Integer modeOPayment, Long transactionId, Room room) {
+            this.owner = owner;
+            this.renter = renter;
+            this.tsStart = tsStart;
+            this.tsEnd = tsEnd;
+            this.modeOPayment = modeOPayment;
+            this.transactionId = transactionId;
+            this.room = room;
+        }
     }
 
 }

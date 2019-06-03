@@ -17,14 +17,14 @@ data class Contract(
         var tsStart: Long = -1,
         @Column(name = "ts_end")
         var tsEnd: Long = -1,
-        @Column(name = "prepaid")
-        var prepaid: Long = -1,
+//        @Column(name = "prepaid")
+//        var prepaid: Long = -1,
         @Column(name = "mode_of_payment")
         var modeOPayment: Int = -1,
-        @Column(name = "term")
-        var term: String = "",
-        @Column(name = "number_of_room")
-        var numberOfRoom: Long = -1,
+//        @Column(name = "term")
+//        var term: String = "",
+//        @Column(name = "number_of_room")
+//        var numberOfRoom: Long = -1,
         @Column(name = "transaction_id")
         var transactionId: Long = -1,
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
@@ -45,11 +45,11 @@ data class Contract(
         trueBean.renter = this.renter?.id ?: -1
         trueBean.tsStart = this.tsStart
         trueBean.tsEnd = this.tsEnd
-        trueBean.prepaid = this.prepaid
+//        trueBean.prepaid = this.prepaid
         trueBean.modeOPayment = this.modeOPayment
-        trueBean.numberOfRoom = this.numberOfRoom
+//        trueBean.numberOfRoom = this.numberOfRoom
         trueBean.transactionId = this.transactionId
-        trueBean.term = this.term
+//        trueBean.term = this.term
         trueBean.roomId = this.room?.id ?: -1
     }
 }

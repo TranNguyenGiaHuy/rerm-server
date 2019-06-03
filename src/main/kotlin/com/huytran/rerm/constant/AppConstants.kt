@@ -6,6 +6,8 @@ class AppConstants {
         const val MESSAGE_TYPE_MESSAGE = 1
         const val MESSAGE_TYPE_NOTIFICATION = 2
         const val MESSAGE_TYPE_VIDEO_CALL = 3
+
+        const val MODE_OF_PAYMENT_CASH = 1
     }
 
 }

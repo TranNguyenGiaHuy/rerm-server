@@ -7,10 +7,10 @@ class BeanContract : BeanBasic() {
     var renter: Long = -1
     var tsStart: Long = -1
     var tsEnd: Long = -1
-    var prepaid: Long = -1
+//    var prepaid: Long = -1
     var modeOPayment: Int = -1
-    var numberOfRoom: Long = -1
+//    var numberOfRoom: Long = -1
     var transactionId: Long = -1
     var roomId: Long = -1
-    var term: String = ""
+//    var term: String = ""
 }
