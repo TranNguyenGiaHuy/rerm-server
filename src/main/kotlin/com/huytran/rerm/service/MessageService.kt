@@ -15,7 +15,10 @@ import javax.xml.crypto.Data
 
 
 @Service
-class MessageService(private val grpcSessionRepository: GrpcSessionRepository, private val grpcSessionService: GrpcSessionService, private val propertyConfig: PropertyConfig) {
+class MessageService(
+        private val grpcSessionRepository: GrpcSessionRepository,
+        private val grpcSessionService: GrpcSessionService,
+        propertyConfig: PropertyConfig) {
 
     private val FIREBASE_SERVER_KEY = propertyConfig.firebaseKey
     private val FIREBASE_API_URL = "https://fcm.googleapis.com/fcm/send"
@@ -26,14 +29,18 @@ class MessageService(private val grpcSessionRepository: GrpcSessionRepository, p
     }
 
     fun sendMessageToUser(title: String, message: String, userId: Long): BeanResult {
-        return sendNotification(title, message, userId, MessageType.Data)
+        return sendNotification(title, message, userId, MessageType.Data, AppConstants.NotificationType.MESSAGE_TYPE_MESSAGE)
     }
 
     fun sendNotificationToUser(title: String, message: String, userId: Long): BeanResult {
-        return sendNotification(title, message, userId, MessageType.Notification)
+        return sendNotification(title, message, userId, MessageType.Notification, AppConstants.NotificationType.MESSAGE_TYPE_NOTIFICATION)
     }
 
-    fun sendNotification(title: String, message: String, userId: Long, messageType: MessageType): BeanResult {
+    fun sendChatToUser(message: String, userId: Long): BeanResult {
+        return sendNotification("", message, userId, MessageType.Data, AppConstants.NotificationType.MESSAGE_TYPE_CHAT)
+    }
+
+    fun sendNotification(title: String, message: String, userId: Long, messageType: MessageType, notificationType: AppConstants.NotificationType, extraData: Map<String, Any>? = null): BeanResult {
         val beanResult = BeanResult()
 
         val grpcSessionList = grpcSessionRepository.findByUser_IdAndAvailable(userId, true)
@@ -63,10 +70,14 @@ class MessageService(private val grpcSessionRepository: GrpcSessionRepository, p
         messageJSON.put("title", title)
         messageJSON.put("body", message)
         messageJSON.put("sender", senderUserId)
-        messageJSON.put("notificationType", AppConstants.MESSAGE_TYPE_MESSAGE)
+        messageJSON.put("notificationType", notificationType.raw)
+
+        extraData?.let {
+            messageJSON.put("extraData", extraData)
+        }
 
         dataJSON.put(
-                when(messageType){
+                when (messageType) {
                     MessageType.Data -> "data"
                     MessageType.Notification -> "notification"
 

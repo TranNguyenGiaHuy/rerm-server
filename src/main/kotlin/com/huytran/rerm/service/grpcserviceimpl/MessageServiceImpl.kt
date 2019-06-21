@@ -18,8 +18,7 @@ import org.lognet.springboot.grpc.GRpcService
 class MessageServiceImpl(private val messageService: MessageService, private val grpcSessionService: GrpcSessionService) : MessageServiceGrpc.MessageServiceImplBase() {
 
     override fun sendMessage(request: SendMessageRequest, responseObserver: StreamObserver<SendMessageResponse>?) {
-        val sendMessageResult = messageService.sendMessageToUser(
-                "Message",
+        val sendMessageResult = messageService.sendChatToUser(
                 request.message,
                 request.to
         )
