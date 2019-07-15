@@ -45,10 +45,10 @@ public class ContractService extends CoreService<Contract, ContractRepository, C
 //        Long prepaid;
         Integer modeOPayment;
 //        Long numberOfRoom;
-        Long transactionId;
+        String transactionId;
         Room room;
 
-        public Params(User owner, User renter, Long tsStart, Long tsEnd, Integer modeOPayment, Long transactionId, Room room) {
+        public Params(User owner, User renter, Long tsStart, Long tsEnd, Integer modeOPayment, String transactionId, Room room) {
             this.owner = owner;
             this.renter = renter;
             this.tsStart = tsStart;

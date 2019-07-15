@@ -26,7 +26,7 @@ data class Contract(
 //        @Column(name = "number_of_room")
 //        var numberOfRoom: Long = -1,
         @Column(name = "transaction_id")
-        var transactionId: Long = -1,
+        var transactionId: String = "",
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
         var room: Room? = null
 //        @OneToMany(mappedBy = "contract" ,fetch = FetchType.LAZY)

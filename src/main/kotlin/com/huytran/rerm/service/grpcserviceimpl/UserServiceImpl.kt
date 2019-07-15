@@ -135,6 +135,7 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                 .setTsDateOfBirth(bean.tsDateOfBirth)
                 .setPlaceOfPermanent(bean.placeOfPermanent)
                 .setId(bean.id)
+                .setPlaceOfIssueOfIdentityCard(bean.placeOfIssueOfIdentityCard)
                 .build()
     }
 

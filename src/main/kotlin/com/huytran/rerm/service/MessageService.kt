@@ -40,6 +40,113 @@ class MessageService(
         return sendNotification("", message, userId, MessageType.Data, AppConstants.NotificationType.MESSAGE_TYPE_CHAT)
     }
 
+    fun sendRentRequestToOwner(roomId: Long, ownerId: Long, renterId: Long) =
+            sendNotificationWithExtraData(
+                    renterId,
+                    ownerId,
+                    roomId,
+                    0L,
+                    AppConstants.NotificationType.MESSAGE_TYPE_RENT_REQUEST
+            )
+
+    fun sendCancelRentRequestToOwner(roomId: Long, ownerId: Long, renterId: Long) =
+            sendNotificationWithExtraData(
+                    renterId,
+                    ownerId,
+                    roomId,
+                    0L,
+                    AppConstants.NotificationType.MESSAGE_TYPE_CANCEL_RENT_REQUEST_TO_OWNER
+            )
+
+    fun sendCancelRentRequestToRenter(roomId: Long, ownerId: Long, renterId: Long) =
+            sendNotificationWithExtraData(
+                    ownerId,
+                    renterId,
+                    roomId,
+                    0L,
+                    AppConstants.NotificationType.MESSAGE_TYPE_CANCEL_RENT_REQUEST_TO_RENTER
+            )
+
+    fun sendAcceptedAnotherRequest(roomId: Long, ownerId: Long, renterId: Long) =
+            sendNotificationWithExtraData(
+                    ownerId,
+                    renterId,
+                    roomId,
+                    0L,
+                    AppConstants.NotificationType.MESSAGE_TYPE_OWNER_ACCEPTED_ANOTHER_REQUEST
+            )
+
+    fun sendRentSuccess(roomId: Long, ownerId: Long, renterId: Long) =
+            sendNotificationWithExtraData(
+                    ownerId,
+                    renterId,
+                    roomId,
+                    0L,
+                    AppConstants.NotificationType.MESSAGE_TYPE_RENT_SUCCESS
+            )
+
+    fun sendContractTerminate(roomId: Long, ownerId: Long, renterId: Long) {
+        sendNotificationWithExtraData(
+                ownerId,
+                renterId,
+                roomId,
+                0L,
+                AppConstants.NotificationType.MESSAGE_TYPE_CONTRACT_TERMINATE
+        )
+        sendNotificationWithExtraData(
+                renterId,
+                ownerId,
+                roomId,
+                0L,
+                AppConstants.NotificationType.MESSAGE_TYPE_CONTRACT_TERMINATE
+        )
+    }
+
+    fun sendAddPayment(roomId: Long, ownerId: Long, renterId: Long) =
+            sendNotificationWithExtraData(
+                    renterId,
+                    ownerId,
+                    roomId,
+                    0L,
+                    AppConstants.NotificationType.MESSAGE_TYPE_ADD_PAYMENT
+            )
+
+    fun sendBill(roomId: Long, ownerId: Long, renterId: Long, value: Long) =
+            sendNotificationWithExtraData(
+                    ownerId,
+                    renterId,
+                    roomId,
+                    value,
+                    AppConstants.NotificationType.MESSAGE_TYPE_BILL
+            )
+
+    fun sendPaymentRequest(roomId: Long, ownerId: Long, renterId: Long, value: Long) =
+            sendNotificationWithExtraData(
+                    renterId,
+                    ownerId,
+                    roomId,
+                    value,
+                    AppConstants.NotificationType.MESSAGE_TYPE_OWNER_ACCEPTED_ANOTHER_REQUEST
+            )
+
+    fun sendConfirmPayment(roomId: Long, ownerId: Long, renterId: Long, value: Long) =
+            sendNotificationWithExtraData(
+                    ownerId,
+                    renterId,
+                    roomId,
+                    value,
+                    AppConstants.NotificationType.MESSAGE_TYPE_CONFIRM_PAYMENT
+            )
+
+    fun sendNotificationWithExtraData(from: Long, to: Long, roomId: Long, value: Long, notificationType: AppConstants.NotificationType): BeanResult {
+        val extraData = mapOf<String, Any>(
+                "from" to from,
+                "room" to roomId,
+                "value" to value
+        )
+        return sendNotification("", "", to, MessageType.Data, notificationType, extraData)
+    }
+
     fun sendNotification(title: String, message: String, userId: Long, messageType: MessageType, notificationType: AppConstants.NotificationType, extraData: Map<String, Any>? = null): BeanResult {
         val beanResult = BeanResult()
 

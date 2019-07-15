@@ -25,6 +25,8 @@ data class User(
         var tsDateOfBirth: Long = 0,
         @Column(name = "place_of_permanent")
         var placeOfPermanent: String = "",
+        @Column(name = "place_of_issue_of_identity_card")
+        var placeOfIssueOfIdentityCard: String = "",
         @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
         var roomList: List<Room> = emptyList(),
         @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
@@ -54,5 +56,6 @@ data class User(
         trueBean.tsCardDated = this.tsCardDated
         trueBean.tsDateOfBirth = this.tsDateOfBirth
         trueBean.placeOfPermanent = this.placeOfPermanent
+        trueBean.placeOfIssueOfIdentityCard = this.placeOfIssueOfIdentityCard
     }
 }

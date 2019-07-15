@@ -11,4 +11,5 @@ class BeanUser : BeanBasic() {
     var tsCardDated: Long = 0
     var tsDateOfBirth: Long = 0
     var placeOfPermanent: String = ""
+    var placeOfIssueOfIdentityCard: String = ""
 }

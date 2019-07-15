@@ -1,5 +1,6 @@
 package com.huytran.rerm.service;
 
+import com.huytran.rerm.bean.BeanContract;
 import com.huytran.rerm.bean.BeanGrpcSession;
 import com.huytran.rerm.bean.core.BeanList;
 import com.huytran.rerm.bean.core.BeanResult;
@@ -26,10 +27,11 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
     private RoomRepository roomRepository;
     private MessageService messageService;
     private ContractService contractService;
+    private SmartContractService smartContractService;
 
     RentRequestService(
             RentRequestRepository rentRequestRepository,
-            GrpcSessionService grpcSessionService, UserRepository userRepository, RoomRepository roomRepository, MessageService messageService, ContractService contractService) {
+            GrpcSessionService grpcSessionService, UserRepository userRepository, RoomRepository roomRepository, MessageService messageService, ContractService contractService, SmartContractService smartContractService) {
         super(rentRequestRepository);
         this.rentRequestRepository = rentRequestRepository;
         this.grpcSessionService = grpcSessionService;
@@ -37,6 +39,7 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
         this.roomRepository = roomRepository;
         this.messageService = messageService;
         this.contractService = contractService;
+        this.smartContractService = smartContractService;
     }
 
     @Override
@@ -104,13 +107,18 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
             return beanResult;
         }
 
-        String title = "Rent Request!";
-        String message = optionalUser.get().getName() + " want to rent your " + roomOptional.get().getTitle();
+//        String title = "Rent Request!";
+//        String message = optionalUser.get().getName() + " want to rent your " + roomOptional.get().getTitle();
         try {
-            messageService.sendNotificationToUser(
-                    title,
-                    message,
-                    roomOptional.get().getOwner().getId()
+//            messageService.sendNotificationToUser(
+//                    title,
+//                    message,
+//                    roomOptional.get().getOwner().getId()
+//            );
+            messageService.sendRentRequestToOwner(
+                    roomOptional.get().getId(),
+                    roomOptional.get().getOwner().getId(),
+                    optionalUser.get().getId()
             );
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -142,6 +150,7 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
 //                true
 //        );
 
+        // check info
         Optional<RentRequest> rentRequestOptional = rentRequestRepository.findByIdAndAvailable(rentRequestId, true);
         if (!rentRequestOptional.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
@@ -165,41 +174,73 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
             return beanResult;
         }
 
+        // save database
         RentRequest rentRequest = rentRequestOptional.get();
         rentRequest.setConfirm(true);
         rentRequestRepository.save(rentRequest);
 
-        String title = "Rent Request Confirm!";
-        String message = ownerOptional.get().getName() + " agree to let you to rent " + roomOptional.get().getTitle();
-        messageService.sendNotificationToUser(
-                title,
-                message,
+        // message to renter
+        messageService.sendRentSuccess(
+                roomOptional.get().getId(),
+                ownerOptional.get().getId(),
                 rentRequest.getRenter().getId()
         );
 
+        // cancel all rent requests and message cancel to users which not be accepted
         List<RentRequest> rentRequestList = rentRequestRepository.findByRoomAndAvailable(roomOptional.get(), true);
         rentRequestList.stream().filter(rr -> rr.getId() != rentRequest.getId())
-                .forEach(rr -> rr.setAvailable(false));
+                .forEach(rr -> {
+                    rr.setAvailable(false);
+                    messageService.sendCancelRentRequestToRenter(
+                            rr.getRoom().getId(),
+                            ownerOptional.get().getId(),
+                            rr.getRenter().getId()
+                    );
+                });
         rentRequestRepository.saveAll(rentRequestList);
 
+        // disable room
         Room room = roomOptional.get();
         room.setAvailable(false);
         roomRepository.save(room);
 
-//        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
-//        beanResult.setBean(rentRequest.createBean());
-//        return beanResult;
-        return contractService.create(
+        // create contract
+        BeanResult createContractResult = contractService.create(
                 new ContractService.Params(
                         ownerOptional.get(),
                         rentRequest.getRenter(),
                         rentRequest.getTsStart(),
                         rentRequest.getTsEnd(),
                         AppConstants.MODE_OF_PAYMENT_CASH,
-                        0L,
+                        "",
                         rentRequest.getRoom()
                 )
         );
+
+        // init smart contract
+        smartContractService.assignContract(
+                roomOptional.get(),
+                ownerOptional.get(),
+                rentRequest.getRenter(),
+                rentRequest.getTsStart(),
+                rentRequest.getTsEnd()
+        ).sendAsync().thenAccept(address -> {
+            BeanContract beanContract = (BeanContract) beanResult.getBean();
+            contractService.update(
+                    beanContract.getId(),
+                    new ContractService.Params(
+                            ownerOptional.get(),
+                            rentRequest.getRenter(),
+                            beanContract.getTsStart(),
+                            beanContract.getTsEnd(),
+                            beanContract.getModeOPayment(),
+                            address,
+                            roomOptional.get()
+                    )
+            );
+        });
+
+        return createContractResult;
     }
 
     public BeanResult getRentRequestOfRoom(Long id) {

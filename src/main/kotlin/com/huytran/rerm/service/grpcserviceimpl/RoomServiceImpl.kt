@@ -87,6 +87,22 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
         responseObserver?.onCompleted()
     }
 
+    override fun getRoom(request: GetRoomRequest, responseObserver: StreamObserver<GetRoomResponse>?) {
+        val getRoomResult = roomService.get(request.roomId)
+        val response = GetRoomResponse.newBuilder()
+                .setResultCode(getRoomResult.code)
+        if (getRoomResult.code == ResultCode.RESULT_CODE_VALID
+                && getRoomResult.bean != null
+                && getRoomResult.bean is BeanRoom) {
+            response.setRoom(
+                    beanToResultRoom(getRoomResult.bean as BeanRoom)
+            )
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
     private fun beanToResultRoom(bean: BeanRoom): Room.Builder {
         return Room.newBuilder()
                 .setId(bean.id)
