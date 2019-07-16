@@ -47,6 +47,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         Long tsCardDated;
         Long tsDateOfBirth;
         String placeOfPermanent;
+        String placeOfIssueOfIdentityCard;
 
         public Params(String name,
                       String password,
@@ -56,7 +57,8 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
                       String idCard,
                       Long tsCardDated,
                       Long tsDateOfBirth,
-                      String placeOfPermanent) {
+                      String placeOfPermanent,
+                      String placeOfIssueOfIdentityCard) {
             this.name = name;
             this.password = password;
             this.userName = userName;
@@ -66,6 +68,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
             this.tsCardDated = tsCardDated;
             this.tsDateOfBirth = tsDateOfBirth;
             this.placeOfPermanent = placeOfPermanent;
+            this.placeOfIssueOfIdentityCard = placeOfIssueOfIdentityCard;
         }
 
         public Params(String name,
@@ -79,6 +82,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
             this.tsCardDated = 0L;
             this.tsDateOfBirth = 0L;
             this.placeOfPermanent = "";
+            this.placeOfIssueOfIdentityCard = "";
         }
     }
 
@@ -90,6 +94,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         Long tsCardDated;
         Long tsDateOfBirth;
         String placeOfPermanent;
+        String placeOfIssueOfIdentityCard;
 
         public UpdateParams(String name,
                             String userName,
@@ -97,7 +102,8 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
                             String idCard,
                             Long tsCardDated,
                             Long tsDateOfBirth,
-                            String placeOfPermanent) {
+                            String placeOfPermanent,
+                            String placeOfIssueOfIdentityCard) {
             this.name = name;
             this.userName = userName;
             this.phoneNumber = phoneNumber;
@@ -105,6 +111,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
             this.tsCardDated = tsCardDated;
             this.tsDateOfBirth = tsDateOfBirth;
             this.placeOfPermanent = placeOfPermanent;
+            this.placeOfIssueOfIdentityCard = placeOfIssueOfIdentityCard;
         }
     }
 
@@ -253,6 +260,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         user.setTsCardDated(updateParams.tsCardDated);
         user.setTsDateOfBirth(updateParams.tsDateOfBirth);
         user.setPlaceOfPermanent(updateParams.placeOfPermanent);
+        user.setPlaceOfIssueOfIdentityCard(updateParams.placeOfIssueOfIdentityCard);
 
         userRepository.save(user);
 
