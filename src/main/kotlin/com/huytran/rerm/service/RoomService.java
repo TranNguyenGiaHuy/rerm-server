@@ -11,6 +11,7 @@ import com.huytran.rerm.repository.UserRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,6 +52,8 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         room.setDescription(params.description);
         room.setOwner(params.owner);
         room.setTerm(params.term);
+        room.setElectricityPrice(params.electricityPrice);
+        room.setWaterPrice(params.waterPrice);
     }
 
     public class Params extends CoreService.AbstractParams {
@@ -194,6 +197,67 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
                         optionalUser.get()
                 )
         );
+    }
+
+    public BeanResult update(Long id, CreateParams createParams) {
+        BeanResult beanResult = new BeanResult();
+        BeanResult getGrpcTokenResult = grpcSessionService.getSession();
+
+        if (getGrpcTokenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokenResult.getBean() == null
+                || !(getGrpcTokenResult.getBean() instanceof BeanGrpcSession)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        Long userId = ((BeanGrpcSession) getGrpcTokenResult.getBean()).getUserId();
+        Optional<User> optionalUser = userRepository.findByIdAndAvailable(userId, true);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        return update(
+                id,
+                new Params(
+                        createParams.title,
+                        createParams.square,
+                        createParams.address,
+                        createParams.price,
+                        createParams.type,
+                        createParams.numberOfFloor,
+                        createParams.hasFurniture,
+                        createParams.maxMember,
+                        createParams.cookingAllowance,
+                        createParams.homeType,
+                        createParams.prepaid,
+                        createParams.description,
+                        createParams.term,
+                        createParams.electricityPrice,
+                        createParams.waterPrice,
+                        optionalUser.get()
+                )
+        );
+    }
+
+    public BeanResult getAllOfUser() {
+        BeanResult beanResult = new BeanResult();
+        BeanResult getGrpcTokenResult = grpcSessionService.getSession();
+
+        if (getGrpcTokenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokenResult.getBean() == null
+                || !(getGrpcTokenResult.getBean() instanceof BeanGrpcSession)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        List<Room> roomList = roomRepository.findByOwner_IdAndAvailable(
+                ((BeanGrpcSession) getGrpcTokenResult.getBean()).getUserId(),
+                true
+        );
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(new BeanList(roomList));
+        return beanResult;
     }
 
 }

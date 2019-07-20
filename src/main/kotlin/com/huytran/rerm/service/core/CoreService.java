@@ -52,6 +52,7 @@ public abstract class CoreService<BaseModel extends ModelCore, Repository extend
         }
         BaseModel baseModel = optionalBaseModel.get();
         parseParams(baseModel, params);
+        baseModel.setTsLastModified(System.currentTimeMillis());
         repository.save(baseModel);
 
         beanResult.setBean(baseModel.createBean());

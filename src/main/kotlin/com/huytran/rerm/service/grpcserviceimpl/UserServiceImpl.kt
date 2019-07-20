@@ -93,7 +93,9 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                         request?.idCard,
                         request?.tsCardDated,
                         request?.tsDateOfBirth,
-                        request?.placeOfPermanent)
+                        request?.placeOfPermanent,
+                        request?.placeOfIssueOfIdentityCard
+                )
         )
 
         val response = UpdateUserInfoResponse.newBuilder()

@@ -12,25 +12,9 @@ import org.lognet.springboot.grpc.GRpcService
 @GRpcService
 class RoomServiceImpl(private val roomService: RoomService, private val savedRoomService: SavedRoomService) : RoomServiceGrpc.RoomServiceImplBase() {
 
-    override fun createRoom(request: CreateRoomRequest?, responseObserver: StreamObserver<CreateRoomResponse>?) {
+    override fun createRoom(request: CreateRoomRequest, responseObserver: StreamObserver<CreateRoomResponse>?) {
         val createResult = roomService.create(
-                RoomService.CreateParams(
-                        request?.room?.title,
-                        request?.room?.square,
-                        request?.room?.address,
-                        request?.room?.price,
-                        request?.room?.type,
-                        request?.room?.numberOfFloor,
-                        request?.room?.hasFurniture,
-                        request?.room?.maxMember,
-                        request?.room?.cookingAllowance,
-                        request?.room?.homeType,
-                        request?.room?.prepaid,
-                        request?.room?.description,
-                        request?.room?.term,
-                        request?.room?.electricityPrice,
-                        request?.room?.waterPrice
-                )
+                roomToCreateParams(request.room)
         )
 
         val response = CreateRoomResponse.newBuilder()
@@ -103,6 +87,55 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
         responseObserver?.onCompleted()
     }
 
+    override fun updateRoom(request: UpdateRoomRequest, responseObserver: StreamObserver<UpdateRoomResponse>?) {
+        val updateResult = roomService.update(
+                request.room.id,
+                roomToCreateParams(request.room)
+        )
+
+        val response = UpdateRoomResponse.newBuilder()
+                .setResultCode(updateResult.code)
+        if (updateResult.code == ResultCode.RESULT_CODE_VALID
+                && updateResult.bean != null
+                && updateResult.bean is BeanRoom) {
+            response.room = beanToResultRoom(updateResult.bean as BeanRoom).build()
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun deleteRoom(request: DeleteRoomRequest, responseObserver: StreamObserver<DeleteRoomResponse>?) {
+        val deleteResult = roomService.delete(
+                request.id
+        )
+
+        val response = DeleteRoomResponse.newBuilder()
+                .setResultCode(deleteResult.code)
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun getAllRoomOfUser(request: GetAllRoomOfUserRequest?, responseObserver: StreamObserver<GetAllRoomOfUserResponse>?) {
+        val result = roomService.allOfUser
+        val response = GetAllRoomOfUserResponse.newBuilder()
+                .setResultCode(result.code)
+
+        if (result.code == ResultCode.RESULT_CODE_VALID
+                && result.bean != null
+                && result.bean is BeanList) {
+            (result.bean as BeanList).listBean.forEach { bean ->
+                response.addRoom(
+                        beanToResultRoom(bean as BeanRoom)
+                )
+            }
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
     private fun beanToResultRoom(bean: BeanRoom): Room.Builder {
         return Room.newBuilder()
                 .setId(bean.id)
@@ -124,6 +157,26 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
                 .setTerm(bean.term)
                 .setElectricityPrice(bean.electricityPrice)
                 .setWaterPrice(bean.waterPrice)
+    }
+
+    private fun roomToCreateParams(room: Room): RoomService.CreateParams {
+        return RoomService.CreateParams(
+                room.title,
+                room.square,
+                room.address,
+                room.price,
+                room.type,
+                room.numberOfFloor,
+                room.hasFurniture,
+                room.maxMember,
+                room.cookingAllowance,
+                room.homeType,
+                room.prepaid,
+                room.description,
+                room.term,
+                room.electricityPrice,
+                room.waterPrice
+        )
     }
 
 }

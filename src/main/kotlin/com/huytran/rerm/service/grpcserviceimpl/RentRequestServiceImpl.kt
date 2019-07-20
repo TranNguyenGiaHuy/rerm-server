@@ -48,13 +48,7 @@ class RentRequestServiceImpl(private val rentRequestService: RentRequestService)
             (getRentRequestOfRoomResult.bean as BeanList).listBean.forEachIndexed { _, bean ->
                 val rentRequestBean = bean as BeanRentRequest
                 response.addRentRequest(
-                        RentRequest.newBuilder()
-                                .setTsStart(rentRequestBean.tsStart)
-                                .setTsEnd(rentRequestBean.tsEnd)
-                                .setRoomId(rentRequestBean.roomId)
-                                .setRenter(rentRequestBean.renter)
-                                .setId(rentRequestBean.id)
-                                .build()
+                        beanToRentRequest(rentRequestBean)
                 )
             }
         }
@@ -72,5 +66,48 @@ class RentRequestServiceImpl(private val rentRequestService: RentRequestService)
 
         responseObserver?.onNext(response)
         responseObserver?.onCompleted()
+    }
+
+    override fun getRentRequestOfRoomAndUser(request: GetRentRequestOfRoomAndUserRequest, responseObserver: StreamObserver<GetRentRequestOfRoomAndUserResponse>?) {
+        val result = rentRequestService.getRentRequestWithUserAndRoom(request.id)
+
+        val response = GetRentRequestOfRoomAndUserResponse.newBuilder()
+                .setResultCode(result.code)
+        if (result.code == ResultCode.RESULT_CODE_VALID
+                && result.bean != null
+                && result.bean is BeanRentRequest) {
+            val bean = result.bean as  BeanRentRequest
+            response.rentRequest = beanToRentRequest(bean)
+        }
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun updateRentRequest(request: UpdateRentRequestRequest, responseObserver: StreamObserver<UpdateRentRequestResponse>?) {
+        val result = rentRequestService.update(
+                request.id,
+                request.tsStart,
+                request.tsEnd
+        )
+        val response = UpdateRentRequestResponse.newBuilder()
+                .setResultCode(result.code)
+        if (result.code == ResultCode.RESULT_CODE_VALID
+                && result.bean != null
+                && result.bean is BeanRentRequest) {
+            val bean = result.bean as  BeanRentRequest
+            response.rentRequest = beanToRentRequest(bean)
+        }
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    private fun beanToRentRequest(beanRentRequest: BeanRentRequest) : RentRequest {
+        return RentRequest.newBuilder()
+                .setTsStart(beanRentRequest.tsStart)
+                .setTsEnd(beanRentRequest.tsEnd)
+                .setRoomId(beanRentRequest.roomId)
+                .setRenter(beanRentRequest.renter)
+                .setId(beanRentRequest.id)
+                .build()
     }
 }

@@ -6,6 +6,7 @@ import com.huytran.rerm.bean.core.BeanList;
 import com.huytran.rerm.bean.core.BeanResult;
 import com.huytran.rerm.constant.AppConstants;
 import com.huytran.rerm.constant.ResultCode;
+import com.huytran.rerm.model.GrpcSession;
 import com.huytran.rerm.model.RentRequest;
 import com.huytran.rerm.model.Room;
 import com.huytran.rerm.model.User;
@@ -107,14 +108,18 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
             return beanResult;
         }
 
-//        String title = "Rent Request!";
-//        String message = optionalUser.get().getName() + " want to rent your " + roomOptional.get().getTitle();
+        // only one request available for one renter and one room
+        Optional<RentRequest> rentRequestOptional = rentRequestRepository.findByRenter_IdAndRoom_IdAndAvailable(
+                beanGrpcSession.getUserId(),
+                roomOptional.get().getId(),
+                true
+        );
+        if (rentRequestOptional.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_DUPLICATE);
+            return beanResult;
+        }
+
         try {
-//            messageService.sendNotificationToUser(
-//                    title,
-//                    message,
-//                    roomOptional.get().getOwner().getId()
-//            );
             messageService.sendRentRequestToOwner(
                     roomOptional.get().getId(),
                     roomOptional.get().getOwner().getId(),
@@ -188,14 +193,16 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
 
         // cancel all rent requests and message cancel to users which not be accepted
         List<RentRequest> rentRequestList = rentRequestRepository.findByRoomAndAvailable(roomOptional.get(), true);
-        rentRequestList.stream().filter(rr -> rr.getId() != rentRequest.getId())
+        rentRequestList
                 .forEach(rr -> {
                     rr.setAvailable(false);
-                    messageService.sendCancelRentRequestToRenter(
-                            rr.getRoom().getId(),
-                            ownerOptional.get().getId(),
-                            rr.getRenter().getId()
-                    );
+                    if (rr.getId() != rentRequest.getId()) {
+                        messageService.sendAcceptedAnotherRequest(
+                                rr.getRoom().getId(),
+                                ownerOptional.get().getId(),
+                                rr.getRenter().getId()
+                        );
+                    }
                 });
         rentRequestRepository.saveAll(rentRequestList);
 
@@ -255,6 +262,115 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
         List<RentRequest> rentRequestList = rentRequestRepository.findByRoomAndAvailable(roomOptional.get(), true);
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         beanResult.setBean(new BeanList(rentRequestList));
+        return beanResult;
+    }
+
+    @Override
+    public BeanResult delete(Long id) {
+        BeanResult beanResult = new BeanResult();
+        Optional<RentRequest> rentRequestOptional = rentRequestRepository.findByIdAndAvailable(id, true);
+        if (!rentRequestOptional.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+        RentRequest rentRequest = rentRequestOptional.get();
+
+        // check permission, only renter or owner can delete
+        BeanResult getGrpcSessionResult = grpcSessionService.getSession();
+        if (getGrpcSessionResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcSessionResult.getBean() == null) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
+            return beanResult;
+        }
+        BeanGrpcSession beanGrpcSession = (BeanGrpcSession) getGrpcSessionResult.getBean();
+
+        // get room
+        Optional<Room> roomOptional = roomRepository.findByIdAndAvailable(rentRequest.getRoom().getId(), true);
+        if (!roomOptional.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+        Room room = roomOptional.get();
+
+        // check user is renter
+        if (beanGrpcSession.getUserId() == rentRequest.getRenter().getId()) {
+            // notify to owner
+            messageService.sendCancelRentRequestToOwner(
+                    room.getId(),
+                    room.getOwner().getId(),
+                    rentRequest.getRenter().getId()
+            );
+        } else if (beanGrpcSession.getUserId() == room.getOwner().getId()) {
+            // notify to renter
+            messageService.sendCancelRentRequestToRenter(
+                    room.getId(),
+                    room.getOwner().getId(),
+                    rentRequest.getRenter().getId()
+            );
+        } else {
+            beanResult.setCode(ResultCode.RESULT_CODE_PERMISSION_LIMITED);
+            return beanResult;
+        }
+
+        rentRequest.setAvailable(false);
+        rentRequestRepository.save(rentRequest);
+
+        beanResult.setBean(rentRequest.createBean());
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+    }
+
+    public BeanResult getRentRequestWithUserAndRoom(Long roomId) {
+        BeanResult beanResult = new BeanResult();
+
+        BeanResult getSessionResult = grpcSessionService.getSession();
+        if (getSessionResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getSessionResult.getBean() == null) {
+            beanResult.setCode(getSessionResult.getCode());
+            return beanResult;
+        }
+
+        Optional<RentRequest> rentRequestOptional = rentRequestRepository.findByRenter_IdAndRoom_IdAndAvailable(
+                ((BeanGrpcSession) getSessionResult.getBean()).getUserId(),
+                roomId,
+                true
+        );
+        if (!rentRequestOptional.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        beanResult.setBean(rentRequestOptional.get().createBean());
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        return beanResult;
+    }
+
+    public BeanResult update(Long id, Long tsStart, Long tsEnd) {
+        BeanResult beanResult = new BeanResult();
+
+        BeanResult getSessionResult = grpcSessionService.getSession();
+        if (getSessionResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getSessionResult.getBean() == null) {
+            beanResult.setCode(getSessionResult.getCode());
+            return beanResult;
+        }
+
+        // only renter can update
+        Optional<RentRequest> optionalBaseModel = rentRequestRepository.findByIdAndAvailable(id, true);
+        if (!optionalBaseModel.isPresent()
+                || optionalBaseModel.get().getRenter().getId() != ((BeanGrpcSession) getSessionResult.getBean()).getUserId()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_PERMISSION_LIMITED);
+            return beanResult;
+        }
+
+        RentRequest baseModel = optionalBaseModel.get();
+        baseModel.setTsStart(tsStart);
+        baseModel.setTsEnd(tsEnd);
+        baseModel.setTsLastModified(System.currentTimeMillis());
+        rentRequestRepository.save(baseModel);
+
+        beanResult.setBean(baseModel.createBean());
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         return beanResult;
     }
 }

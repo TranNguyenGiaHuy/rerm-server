@@ -144,7 +144,7 @@ class MessageService(
                 "room" to roomId,
                 "value" to value
         )
-        return sendNotification("", "", to, MessageType.Data, notificationType, extraData)
+        return sendNotification("", "notification", to, MessageType.Data, notificationType, extraData)
     }
 
     fun sendNotification(title: String, message: String, userId: Long, messageType: MessageType, notificationType: AppConstants.NotificationType, extraData: Map<String, Any>? = null): BeanResult {
@@ -179,8 +179,14 @@ class MessageService(
         messageJSON.put("sender", senderUserId)
         messageJSON.put("notificationType", notificationType.raw)
 
-        extraData?.let {
-            messageJSON.put("extraData", extraData)
+        extraData?.let {extra ->
+            messageJSON.put("extraData", extra)
+//            extra.forEach {map ->
+//                messageJSON.put(
+//                        map.key,
+//                        map.value
+//                )
+//            }
         }
 
         dataJSON.put(
