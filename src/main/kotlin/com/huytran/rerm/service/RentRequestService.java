@@ -102,7 +102,7 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
             return beanResult;
         }
 
-        Optional<Room> roomOptional = roomRepository.findByIdAndAvailable(createParams.roomId, true);
+        Optional<Room> roomOptional = roomRepository.findByIdAndAvailableAndRenting(createParams.roomId, true, false);
         if (!roomOptional.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;
@@ -162,7 +162,7 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
             return beanResult;
         }
 
-        Optional<Room> roomOptional = roomRepository.findByIdAndAvailable(rentRequestOptional.get().getRoom().getId(), true);
+        Optional<Room> roomOptional = roomRepository.findByIdAndAvailableAndRenting(rentRequestOptional.get().getRoom().getId(), true, false);
         if (!roomOptional.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;
@@ -208,7 +208,7 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
 
         // disable room
         Room room = roomOptional.get();
-        room.setAvailable(false);
+        room.setRenting(true);
         roomRepository.save(room);
 
         // create contract
@@ -253,7 +253,7 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
     public BeanResult getRentRequestOfRoom(Long id) {
         BeanResult beanResult = new BeanResult();
 
-        Optional<Room> roomOptional = roomRepository.findByIdAndAvailable(id, true);
+        Optional<Room> roomOptional = roomRepository.findByIdAndAvailableAndRenting(id, true, false);
         if (!roomOptional.isPresent()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
             return beanResult;

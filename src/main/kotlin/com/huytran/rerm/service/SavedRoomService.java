@@ -80,7 +80,7 @@ public class SavedRoomService extends CoreService<SavedRoom, SavedRoomRepository
             return beanResult;
         }
 
-        Optional<SavedRoom> optionalSavedRoom = savedRoomRepository.findByRoom(optionalRoom.get());
+        Optional<SavedRoom> optionalSavedRoom = savedRoomRepository.findByRoomAndUser(optionalRoom.get(), optionalUser.get());
         if (optionalSavedRoom.isPresent()) {
             SavedRoom savedRoom = optionalSavedRoom.get();
             savedRoom.setAvailable(true);
@@ -88,6 +88,7 @@ public class SavedRoomService extends CoreService<SavedRoom, SavedRoomRepository
 
             savedRoomRepository.save(savedRoom);
             beanResult.setBean(savedRoom.createBean());
+            beanResult.setCode(ResultCode.RESULT_CODE_VALID);
             return beanResult;
         } else {
             return create(
@@ -161,6 +162,9 @@ public class SavedRoomService extends CoreService<SavedRoom, SavedRoomRepository
                         .map(savedRoom -> savedRoom.getRoom().getId())
                         .collect(Collectors.toList())
         );
+        roomList = roomList.stream()
+                .filter(room -> room.getAvailable() &&  !room.isRenting())
+                .collect(Collectors.toList());
 
         beanResult.setBean(new BeanList(roomList));
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);

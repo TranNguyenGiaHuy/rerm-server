@@ -19,6 +19,7 @@ class BeanRoom : BeanBasic() {
     var term: String = ""
     var electricityPrice: Long = 0
     var waterPrice: Long = 0
+    var isRenting: Boolean = false
 
     var ownerName: String = ""
 }

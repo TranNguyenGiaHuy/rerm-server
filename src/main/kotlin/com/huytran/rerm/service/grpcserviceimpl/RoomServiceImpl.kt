@@ -157,6 +157,7 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
                 .setTerm(bean.term)
                 .setElectricityPrice(bean.electricityPrice)
                 .setWaterPrice(bean.waterPrice)
+                .setIsRenting(bean.isRenting)
     }
 
     private fun roomToCreateParams(room: Room): RoomService.CreateParams {

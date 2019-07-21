@@ -34,7 +34,7 @@ class SavedRoomServiceImpl(private val savedRoomService: SavedRoomService) : Sav
     }
 
     override fun getAllSavedRoomId(request: GetAllSavedRoomIdRequest, responseObserver: StreamObserver<GetAllSavedRoomIdResponse>) {
-        val getAllRoomIdResult = savedRoomService.allRoomIdOfUser
+        val getAllRoomIdResult = savedRoomService.allOfCurrentUser
         val response = GetAllSavedRoomIdResponse.newBuilder()
                 .setResultCode(getAllRoomIdResult.code)
 

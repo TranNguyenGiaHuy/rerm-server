@@ -37,6 +37,8 @@ data class Room(
         var electricityPrice: Long = 0,
         @Column(name = "water_price")
         var waterPrice: Long = 0,
+        @Column(name = "is_renting")
+        var isRenting: Boolean = false,
 
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "owner")
         var owner: User? = null,
@@ -73,6 +75,7 @@ data class Room(
         bean.electricityPrice = this.electricityPrice
         bean.waterPrice = this.waterPrice
         bean.owner = this.owner?.id ?: -1
+        bean.isRenting = this.isRenting
 
         bean.ownerName = this.owner?.userName ?: ""
     }

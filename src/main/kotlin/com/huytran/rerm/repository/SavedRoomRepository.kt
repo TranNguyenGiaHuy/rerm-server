@@ -12,7 +12,7 @@ interface SavedRoomRepository : RepositoryCore<SavedRoom, Long> {
 
     fun findByAvailableAndUser(available: Boolean, user: User) : List<SavedRoom>
 
-    fun findByRoom(room: Room) : Optional<SavedRoom>
+    fun findByRoomAndUser(room: Room, user: User) : Optional<SavedRoom>
 
     fun findByUser_IdAndRoom_IdAndAvailable(userId: Long, roomId: Long, available: Boolean): Optional<SavedRoom>
 
