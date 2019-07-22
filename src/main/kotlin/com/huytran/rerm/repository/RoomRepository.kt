@@ -12,5 +12,5 @@ import java.util.*
 interface RoomRepository : RepositoryCore<Room, Long> {
     fun findByOwner_IdAndAvailable(userId: Long, available: Boolean): List<Room>
 
-    fun findByIdAndAvailableAndRenting(id: Long, available: Boolean, isRenting:  Boolean): Optional<Room>
+    fun findByIdAndAvailableAndRenting(id: Long, available: Boolean, renting:  Boolean): Optional<Room>
 }

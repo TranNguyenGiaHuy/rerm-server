@@ -1,5 +1,6 @@
 package com.huytran.rerm.utilities
 
+import com.huytran.rerm.constant.AppConstants
 import com.huytran.rerm.constant.ResultCode
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
@@ -58,6 +59,16 @@ class UtilityFunction {
                 ByteArray(0)
             }
 
+        }
+
+        fun longToPaymentStatus(int: Int): AppConstants.PaymentStatus {
+            return when(int) {
+                0 -> AppConstants.PaymentStatus.WAITING_BILL
+                1 -> AppConstants.PaymentStatus.WAITING_PAYMENT
+                2 -> AppConstants.PaymentStatus.WAITING_CONFIRM
+                3 -> AppConstants.PaymentStatus.DONE
+                else -> AppConstants.PaymentStatus.WAITING_BILL
+            }
         }
     }
 

@@ -163,7 +163,7 @@ public class SavedRoomService extends CoreService<SavedRoom, SavedRoomRepository
                         .collect(Collectors.toList())
         );
         roomList = roomList.stream()
-                .filter(room -> room.getAvailable() &&  !room.isRenting())
+                .filter(room -> room.getAvailable() &&  !room.getRenting())
                 .collect(Collectors.toList());
 
         beanResult.setBean(new BeanList(roomList));

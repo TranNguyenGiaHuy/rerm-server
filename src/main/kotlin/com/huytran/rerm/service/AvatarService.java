@@ -83,7 +83,7 @@ public class AvatarService extends CoreService<Avatar, AvatarRepository, AvatarS
 
         // add image here
         String fileName = UtilityFunction.Companion.getUUID();
-        String pathString = propertyConfig.getImageFolder() + fileName;
+        String pathString = propertyConfig.getAvatarFolder() + fileName;
         try {
             UtilityFunction.Companion.writeFileToPath(
                     pathString,

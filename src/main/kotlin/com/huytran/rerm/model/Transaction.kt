@@ -7,6 +7,7 @@ import com.huytran.rerm.bean.core.BeanBasic
 import com.huytran.rerm.model.core.ModelCore
 import javax.persistence.*
 
+@Deprecated("Not Use")
 @Entity(name = "transaction")
 data class Transaction(
         @Column(name = "blockchain_hash")
@@ -20,9 +21,9 @@ data class Transaction(
         @Column(name = "status")
         var status: Long = -1,
         @Column(name = "type")
-        var type: Long = -1,
-        @OneToOne(mappedBy = "transaction")
-        var payment: Payment? = null
+        var type: Long = -1
+//        @OneToOne(mappedBy = "transaction")
+//        var payment: Payment? = null
 ) : ModelCore() {
 
     override fun createEmptyBean(): BeanBasic {

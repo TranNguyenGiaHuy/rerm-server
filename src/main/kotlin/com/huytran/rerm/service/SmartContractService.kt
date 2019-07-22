@@ -11,14 +11,16 @@ import org.web3j.protocol.core.RemoteCall
 import org.web3j.protocol.core.methods.response.TransactionReceipt
 import org.web3j.protocol.http.HttpService
 import org.web3j.tx.gas.DefaultGasProvider
+import java.math.BigInteger
+import java.util.concurrent.CompletableFuture
 import kotlin.math.roundToLong
 
 @Service
 class SmartContractService {
 
-    private val address = "0xcA68ac4573C22bFFD1dd85275f543c0f2C16658e"
-    private val privateKey = "f4f409e4a842bab1a21cc6e61408197703b122efa9e205b6da9b5c0c43c1f19a"
-    private val web3j = Web3j.build(HttpService("127.0.0.1:7545"))
+    private val address = "0x642052b673215bDb181D1b29290cABC7fbB28618"
+    private val privateKey = "af25d42ccd3b100fe83800ef624110fe779b805582cb8af5299fb393e9c7bb64"
+    private val web3j = Web3j.build(HttpService("http://localhost:8545/"))
     private val credentials = Credentials.create(privateKey)
 
     @Async
@@ -66,6 +68,38 @@ class SmartContractService {
                 user.tsCardDated.toBigInteger(),
                 user.phoneNumber,
                 user.placeOfIssueOfIdentityCard
+        )
+    }
+
+    fun addPayment(
+            rentHouseContract: RentHouseContract,
+            tsStart: Long,
+            tsEnd: Long,
+            tsPaid: Long,
+            roomBill: BigInteger,
+            electricityBill: BigInteger,
+            waterBill: BigInteger
+    ): CompletableFuture<TransactionReceipt> {
+        return rentHouseContract.addPaymentRequest(
+                tsStart.toBigInteger(),
+                tsEnd.toBigInteger(),
+                tsPaid.toBigInteger(),
+                roomBill,
+                electricityBill,
+                waterBill
+        ).sendAsync()
+    }
+
+    fun terminateContract(rentHouseContract: RentHouseContract): CompletableFuture<TransactionReceipt> {
+        return rentHouseContract.terminateContract().sendAsync()
+    }
+
+    fun getContract(address: String): RentHouseContract {
+        return RentHouseContract.load(
+                address,
+                web3j,
+                credentials,
+                DefaultGasProvider()
         )
     }
 

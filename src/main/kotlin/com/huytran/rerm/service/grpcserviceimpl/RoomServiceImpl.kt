@@ -39,11 +39,13 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
                 && getAllResult.bean != null
                 && getAllResult.bean is BeanList) {
             val beanList = getAllResult.bean as BeanList
-            beanList.listBean.forEachIndexed { _, beanBasic ->
+            beanList.listBean.forEach { beanBasic ->
                 val bean = beanBasic as BeanRoom
-                response.addRoom(
-                        beanToResultRoom(bean)
-                )
+                if (!bean.renting) {
+                    response.addRoom(
+                            beanToResultRoom(bean)
+                    )
+                }
             }
         }
 
@@ -61,9 +63,13 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
                 && getAllSavedRoomResult.bean is BeanList) {
             val beanList = getAllSavedRoomResult.bean as BeanList
             response.addAllRoom(
-                    beanList.listBean.map {
-                        beanToResultRoom(it as BeanRoom).build()
-                    }
+                    beanList.listBean
+                            .filter { beanBasic ->
+                                !(beanBasic as BeanRoom).renting
+                            }
+                            .map {
+                                beanToResultRoom(it as BeanRoom).build()
+                            }
             )
         }
 
@@ -157,7 +163,7 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
                 .setTerm(bean.term)
                 .setElectricityPrice(bean.electricityPrice)
                 .setWaterPrice(bean.waterPrice)
-                .setIsRenting(bean.isRenting)
+                .setIsRenting(bean.renting)
     }
 
     private fun roomToCreateParams(room: Room): RoomService.CreateParams {

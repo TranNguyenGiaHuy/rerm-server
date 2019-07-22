@@ -2,6 +2,7 @@ package com.huytran.rerm.bean
 
 import com.huytran.rerm.bean.core.BeanBasic
 
+@Deprecated("Not Use")
 class BeanTransaction : BeanBasic() {
     var blockchainHash: String = ""
     var src: String = ""

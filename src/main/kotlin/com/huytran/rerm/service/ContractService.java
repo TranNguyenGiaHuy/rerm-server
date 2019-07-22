@@ -33,7 +33,7 @@ public class ContractService extends CoreService<Contract, ContractRepository, C
 //        contract.setPrepaid(params.prepaid);
         contract.setModeOPayment(params.modeOPayment);
 //        contract.setNumberOfRoom(params.numberOfRoom);
-        contract.setTransactionId(params.transactionId);
+        contract.setAddress(params.address);
         contract.setRoom(params.room);
     }
 
@@ -45,16 +45,17 @@ public class ContractService extends CoreService<Contract, ContractRepository, C
 //        Long prepaid;
         Integer modeOPayment;
 //        Long numberOfRoom;
-        String transactionId;
+//        String transactionId;
+        String address;
         Room room;
 
-        public Params(User owner, User renter, Long tsStart, Long tsEnd, Integer modeOPayment, String transactionId, Room room) {
+        public Params(User owner, User renter, Long tsStart, Long tsEnd, Integer modeOPayment, String address, Room room) {
             this.owner = owner;
             this.renter = renter;
             this.tsStart = tsStart;
             this.tsEnd = tsEnd;
             this.modeOPayment = modeOPayment;
-            this.transactionId = transactionId;
+            this.address = address;
             this.room = room;
         }
     }

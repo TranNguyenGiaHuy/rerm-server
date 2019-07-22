@@ -102,48 +102,73 @@ class MessageService(
         )
     }
 
-    fun sendAddPayment(roomId: Long, ownerId: Long, renterId: Long) =
+    // request owner add payment
+    fun sendAddPayment(roomId: Long, ownerId: Long, renterId: Long, tsStart: Long, tsEnd: Long) =
             sendNotificationWithExtraData(
                     renterId,
                     ownerId,
                     roomId,
                     0L,
-                    AppConstants.NotificationType.MESSAGE_TYPE_ADD_PAYMENT
+                    AppConstants.NotificationType.MESSAGE_TYPE_ADD_PAYMENT,
+                    tsStart,
+                    tsEnd
             )
 
-    fun sendBill(roomId: Long, ownerId: Long, renterId: Long, value: Long) =
+    // request renter pay bill
+    fun sendBill(roomId: Long, ownerId: Long, renterId: Long, value: Long, tsStart: Long, tsEnd: Long) =
             sendNotificationWithExtraData(
                     ownerId,
                     renterId,
                     roomId,
                     value,
-                    AppConstants.NotificationType.MESSAGE_TYPE_BILL
+                    AppConstants.NotificationType.MESSAGE_TYPE_BILL,
+                    tsStart,
+                    tsEnd
             )
 
-    fun sendPaymentRequest(roomId: Long, ownerId: Long, renterId: Long, value: Long) =
+    // request owner confirm bill
+    fun sendPaymentRequest(roomId: Long, ownerId: Long, renterId: Long, value: Long, tsStart: Long, tsEnd: Long) =
             sendNotificationWithExtraData(
                     renterId,
                     ownerId,
                     roomId,
                     value,
-                    AppConstants.NotificationType.MESSAGE_TYPE_OWNER_ACCEPTED_ANOTHER_REQUEST
+                    AppConstants.NotificationType.MESSAGE_TYPE_OWNER_ACCEPTED_ANOTHER_REQUEST,
+                    tsStart,
+                    tsEnd
             )
 
-    fun sendConfirmPayment(roomId: Long, ownerId: Long, renterId: Long, value: Long) =
+    // send to renter, owner confirmed payment
+    fun sendConfirmPayment(roomId: Long, ownerId: Long, renterId: Long, value: Long, tsStart: Long, tsEnd: Long) =
             sendNotificationWithExtraData(
                     ownerId,
                     renterId,
                     roomId,
                     value,
-                    AppConstants.NotificationType.MESSAGE_TYPE_CONFIRM_PAYMENT
+                    AppConstants.NotificationType.MESSAGE_TYPE_CONFIRM_PAYMENT,
+                    tsStart,
+                    tsEnd
             )
 
-    fun sendNotificationWithExtraData(from: Long, to: Long, roomId: Long, value: Long, notificationType: AppConstants.NotificationType): BeanResult {
-        val extraData = mapOf<String, Any>(
+    fun sendNotificationWithExtraData(
+            from: Long,
+            to: Long,
+            roomId: Long,
+            value: Long,
+            notificationType: AppConstants.NotificationType,
+            tsStart: Long? = null,
+            tsEnd: Long? = null): BeanResult {
+        val extraData = mutableMapOf<String, Any>(
                 "from" to from,
                 "room" to roomId,
                 "value" to value
         )
+        tsStart?.let {
+            extraData.put("tsStart", tsStart)
+        }
+        tsEnd?.let {
+            extraData.put("tsEnd", tsEnd)
+        }
         return sendNotification("", "notification", to, MessageType.Data, notificationType, extraData)
     }
 

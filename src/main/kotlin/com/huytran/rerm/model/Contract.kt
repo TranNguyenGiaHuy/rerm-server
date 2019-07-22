@@ -21,14 +21,18 @@ data class Contract(
 //        var prepaid: Long = -1,
         @Column(name = "mode_of_payment")
         var modeOPayment: Int = -1,
+        @Column(name = "address")
+        var address: String = "",
 //        @Column(name = "term")
 //        var term: String = "",
 //        @Column(name = "number_of_room")
 //        var numberOfRoom: Long = -1,
-        @Column(name = "transaction_id")
-        var transactionId: String = "",
+//        @Column(name = "transaction_id")
+//        var transactionId: String = "",
         @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "room_id")
-        var room: Room? = null
+        var room: Room? = null,
+        @OneToMany(mappedBy = "contract", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+        var paymentList: List<Payment> = emptyList()
 //        @OneToMany(mappedBy = "contract" ,fetch = FetchType.LAZY)
 //        var contractContractTermList: List<ContractContractTerm> = emptyList()
 
@@ -48,7 +52,7 @@ data class Contract(
 //        trueBean.prepaid = this.prepaid
         trueBean.modeOPayment = this.modeOPayment
 //        trueBean.numberOfRoom = this.numberOfRoom
-        trueBean.transactionId = this.transactionId
+//        trueBean.transactionId = this.transactionId
 //        trueBean.term = this.term
         trueBean.roomId = this.room?.id ?: -1
     }

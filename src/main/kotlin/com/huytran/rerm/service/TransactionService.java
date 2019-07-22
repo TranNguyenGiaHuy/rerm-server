@@ -8,6 +8,7 @@ import com.huytran.rerm.repository.TransactionRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
 
+@Deprecated
 @Service
 public class TransactionService extends CoreService<Transaction, TransactionRepository, TransactionService.Params> {
 
@@ -33,7 +34,7 @@ public class TransactionService extends CoreService<Transaction, TransactionRepo
         transaction.setBlockchainFee(params.blockchainFee);
         transaction.setStatus(params.status);
         transaction.setType(params.type);
-        transaction.setPayment(params.payment);
+//        transaction.setPayment(params.payment);
     }
 
     public class Params extends CoreService.AbstractParams {
