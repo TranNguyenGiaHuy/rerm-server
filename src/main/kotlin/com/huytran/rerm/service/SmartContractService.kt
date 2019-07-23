@@ -16,10 +16,10 @@ import java.util.concurrent.CompletableFuture
 import kotlin.math.roundToLong
 
 @Service
-class SmartContractService {
+class SmartContractService(val contractService: ContractService) {
 
-    private val address = "0x642052b673215bDb181D1b29290cABC7fbB28618"
-    private val privateKey = "af25d42ccd3b100fe83800ef624110fe779b805582cb8af5299fb393e9c7bb64"
+    private val address = "0x2c83253819BF698C9b47659565b67d292c6a0F57"
+    private val privateKey = "64cf79d0d6df6902382e0f808501585ccd55beeb353991b2de39b508bfed6d1c"
     private val web3j = Web3j.build(HttpService("http://localhost:8545/"))
     private val credentials = Credentials.create(privateKey)
 
@@ -29,7 +29,8 @@ class SmartContractService {
             owner: User,
             renter: User,
             tsStart: Long,
-            tsEnd: Long): RemoteCall<String> {
+            tsEnd: Long,
+            contractId: Long): RemoteCall<String> {
         val smartContract = RentHouseContract.deploy(
                 web3j,
                 credentials,
@@ -41,6 +42,11 @@ class SmartContractService {
             addRoomToContract(it, room).sendAsync()
             addUserToContract(it, true, owner).sendAsync()
             addUserToContract(it, false, renter).sendAsync()
+
+            contractService.updateAddress(
+                    contractId,
+                    it.contractAddress
+            )
         }
 
         return smartContract.get().address

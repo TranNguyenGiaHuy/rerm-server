@@ -133,7 +133,7 @@ class MessageService(
                     ownerId,
                     roomId,
                     value,
-                    AppConstants.NotificationType.MESSAGE_TYPE_OWNER_ACCEPTED_ANOTHER_REQUEST,
+                    AppConstants.NotificationType.MESSAGE_TYPE_PAYMENT_REQUEST,
                     tsStart,
                     tsEnd
             )
@@ -182,13 +182,13 @@ class MessageService(
         }
 
         val getSessionResult = grpcSessionService.session
-        if (getSessionResult.code != ResultCode.RESULT_CODE_VALID
-                || getSessionResult.bean == null
-                || getSessionResult.bean !is BeanGrpcSession) {
-            beanResult.code = ResultCode.RESULT_CODE_NOT_LOGIN
-            return beanResult
-        }
-        val senderUserId = (getSessionResult.bean as BeanGrpcSession).userId
+//        if (getSessionResult.code != ResultCode.RESULT_CODE_VALID
+//                || getSessionResult.bean == null
+//                || getSessionResult.bean !is BeanGrpcSession) {
+//            beanResult.code = ResultCode.RESULT_CODE_NOT_LOGIN
+//            return beanResult
+//        }
+//        val senderUserId = (getSessionResult.bean as BeanGrpcSession).userId
 
         val restTemplate = RestTemplate()
 
@@ -201,8 +201,12 @@ class MessageService(
 
         messageJSON.put("title", title)
         messageJSON.put("body", message)
-        messageJSON.put("sender", senderUserId)
         messageJSON.put("notificationType", notificationType.raw)
+        if (getSessionResult.code == ResultCode.RESULT_CODE_VALID
+                && getSessionResult.bean != null
+                && getSessionResult.bean is BeanGrpcSession) {
+            messageJSON.put("sender", (getSessionResult.bean as BeanGrpcSession).userId)
+        }
 
         extraData?.let {extra ->
             messageJSON.put("extraData", extra)

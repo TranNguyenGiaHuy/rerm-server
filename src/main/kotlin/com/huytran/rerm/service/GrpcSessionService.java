@@ -52,7 +52,7 @@ public class GrpcSessionService extends CoreService<GrpcSession, GrpcSessionRepo
         BeanResult beanResult = new BeanResult();
 
         String token = SecurityInterceptor.Companion.getUSER_IDENTITY().get();
-        if (token.isEmpty()) {
+        if (token == null || token.isEmpty()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
             return beanResult;
         }
@@ -94,7 +94,7 @@ public class GrpcSessionService extends CoreService<GrpcSession, GrpcSessionRepo
         BeanResult beanResult = new BeanResult();
 
         String token = SecurityInterceptor.Companion.getUSER_IDENTITY().get();
-        if (token.isEmpty()) {
+        if (token == null || token.isEmpty()) {
             beanResult.setCode(ResultCode.RESULT_CODE_NOT_LOGIN);
             return beanResult;
         }

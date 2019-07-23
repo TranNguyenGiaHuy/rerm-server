@@ -1,10 +1,7 @@
 package com.huytran.rerm.service.grpcserviceimpl
 
 import com.huytran.grpcdemo.generatedproto.*
-import com.huytran.rerm.bean.BeanGrpcSession
-import com.huytran.rerm.bean.BeanSavedRoom
-import com.huytran.rerm.bean.BeanToken
-import com.huytran.rerm.bean.BeanUser
+import com.huytran.rerm.bean.*
 import com.huytran.rerm.bean.core.BeanList
 import com.huytran.rerm.constant.ResultCode
 import com.huytran.rerm.service.SavedRoomService
@@ -44,7 +41,7 @@ class SavedRoomServiceImpl(private val savedRoomService: SavedRoomService) : Sav
             val beanList = getAllRoomIdResult.bean as BeanList
             response.addAllRoomId(
                     beanList.listBean.map {
-                        (it as BeanSavedRoom).roomId
+                        (it as BeanRoom).id
                     }
             )
         }

@@ -13,6 +13,7 @@ import com.huytran.rerm.repository.PaymentRepository;
 import com.huytran.rerm.service.core.CoreService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,17 +24,20 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
     private ContractRepository contractRepository;
     private GrpcSessionService grpcSessionService;
     private MessageService messageService;
+    private SmartContractService smartContractService;
 
     PaymentService(
             PaymentRepository paymentRepository,
             ContractRepository contractRepository,
             GrpcSessionService grpcSessionService,
-            MessageService messageService) {
+            MessageService messageService,
+            SmartContractService smartContractService) {
         super(paymentRepository);
         this.paymentRepository = paymentRepository;
         this.contractRepository = contractRepository;
         this.grpcSessionService = grpcSessionService;
         this.messageService = messageService;
+        this.smartContractService = smartContractService;
     }
 
     @Override
@@ -234,6 +238,18 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
                 payment.getAmount() + payment.getElectricityBill() + payment.getWaterBill(),
                 optionalContract.get().getTsStart(),
                 optionalContract.get().getTsEnd()
+        );
+
+        // add payment to smart contract
+        Contract contract = optionalContract.get();
+        smartContractService.addPayment(
+                smartContractService.getContract(contract.getAddress()),
+                contract.getTsStart(),
+                contract.getTsEnd(),
+                System.currentTimeMillis(),
+                BigInteger.valueOf(payment.getAmount()),
+                BigInteger.valueOf(payment.getElectricityBill()),
+                BigInteger.valueOf(payment.getWaterBill())
         );
 
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);

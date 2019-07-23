@@ -224,28 +224,32 @@ public class RentRequestService extends CoreService<RentRequest, RentRequestRepo
                 )
         );
 
+        if (createContractResult.getBean() == null) return beanResult;
+
         // init smart contract
         smartContractService.assignContract(
                 roomOptional.get(),
                 ownerOptional.get(),
                 rentRequest.getRenter(),
                 rentRequest.getTsStart(),
-                rentRequest.getTsEnd()
-        ).sendAsync().thenAccept(address -> {
-            BeanContract beanContract = (BeanContract) beanResult.getBean();
-            contractService.update(
-                    beanContract.getId(),
-                    new ContractService.Params(
-                            ownerOptional.get(),
-                            rentRequest.getRenter(),
-                            beanContract.getTsStart(),
-                            beanContract.getTsEnd(),
-                            beanContract.getModeOPayment(),
-                            address,
-                            roomOptional.get()
-                    )
-            );
-        });
+                rentRequest.getTsEnd(),
+                createContractResult.getBean().getId()
+        ).sendAsync();
+//                .thenAccept(address -> {
+//            BeanContract beanContract = (BeanContract) beanResult.getBean();
+//            contractService.update(
+//                    beanContract.getId(),
+//                    new ContractService.Params(
+//                            ownerOptional.get(),
+//                            rentRequest.getRenter(),
+//                            beanContract.getTsStart(),
+//                            beanContract.getTsEnd(),
+//                            beanContract.getModeOPayment(),
+//                            address,
+//                            roomOptional.get()
+//                    )
+//            );
+//        });
 
         return createContractResult;
     }

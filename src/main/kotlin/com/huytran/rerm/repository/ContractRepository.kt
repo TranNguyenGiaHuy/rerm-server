@@ -13,4 +13,5 @@ interface ContractRepository : RepositoryCore<Contract, Long> {
 
     fun findByRoom_IdAndAvailableOrderByTsLastModifiedDesc(roomId: Long, available: Boolean): Optional<Contract>
 
+    fun findAllByRenter_IdOrOwner_Id(renterId: Long, ownerId: Long): List<Contract>
 }

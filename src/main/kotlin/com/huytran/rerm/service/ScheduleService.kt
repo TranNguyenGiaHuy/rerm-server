@@ -7,9 +7,10 @@ import com.huytran.rerm.repository.ContractRepository
 import com.huytran.rerm.repository.PaymentRepository
 import com.huytran.rerm.repository.RoomRepository
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 
-@Service
+@Component
 class ScheduleService(
         private val contractRepository: ContractRepository,
         private val roomRepository: RoomRepository,
@@ -20,10 +21,10 @@ class ScheduleService(
         private val smartContractService: SmartContractService
 ) {
 
-//    private val tsSequence : Long = 2592000000 // 30 days
-    private val tsSequence : Long = 240000 // 4 minutes
+    private val tsSequence : Long = 2592000000 // 30 days
+//    private val tsSequence : Long = 240000 // 4 minutes
 
-    @Scheduled(cron = "0 0/2 * 1/1 * ? *") // per 2 minutes
+    @Scheduled(cron = "0 0/2 * * * ?") // per 2 minutes
 //    @Scheduled(cron = "0 0 0 1/1 * ? *") // start of date, per date
     fun schedule() {
         // get all available contract

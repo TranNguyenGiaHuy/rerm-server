@@ -87,6 +87,7 @@ class PaymentServiceImpl(val paymentService: PaymentService): PaymentServiceGrpc
                 .setTsEnd(bean.tsEnd)
                 .setTsStart(bean.tsStart)
                 .setWaterBill(bean.waterBill)
+                .setId(bean.id)
                 .build()
     }
 }
