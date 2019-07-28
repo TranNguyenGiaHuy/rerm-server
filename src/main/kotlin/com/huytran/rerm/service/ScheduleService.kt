@@ -24,8 +24,8 @@ class ScheduleService(
     private val tsSequence : Long = 2592000000 // 30 days
 //    private val tsSequence : Long = 240000 // 4 minutes
 
-    @Scheduled(cron = "0 0/2 * * * ?") // per 2 minutes
-//    @Scheduled(cron = "0 0 0 1/1 * ? *") // start of date, per date
+//    @Scheduled(cron = "0 0/2 * * * ?") // per 2 minutes
+    @Scheduled(cron = "0 0 0 * * ?") // start of date, per date
     fun schedule() {
         // get all available contract
         val contractList = contractRepository.findAllByAvailable(true)

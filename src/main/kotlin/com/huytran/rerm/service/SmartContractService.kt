@@ -18,8 +18,8 @@ import kotlin.math.roundToLong
 @Service
 class SmartContractService(val contractService: ContractService) {
 
-    private val address = "0x2c83253819BF698C9b47659565b67d292c6a0F57"
-    private val privateKey = "64cf79d0d6df6902382e0f808501585ccd55beeb353991b2de39b508bfed6d1c"
+    private val address = "0xC1CC5A438F755712CD77E4AF24d9Ca74C604f590"
+    private val privateKey = "7aaa7f144ee8d930289367a4005f3c43ea01078364606585e7425dab6a223093"
     private val web3j = Web3j.build(HttpService("http://localhost:8545/"))
     private val credentials = Credentials.create(privateKey)
 
@@ -86,7 +86,7 @@ class SmartContractService(val contractService: ContractService) {
             electricityBill: BigInteger,
             waterBill: BigInteger
     ): CompletableFuture<TransactionReceipt> {
-        return rentHouseContract.addPaymentRequest(
+        return rentHouseContract.addPayment(
                 tsStart.toBigInteger(),
                 tsEnd.toBigInteger(),
                 tsPaid.toBigInteger(),
