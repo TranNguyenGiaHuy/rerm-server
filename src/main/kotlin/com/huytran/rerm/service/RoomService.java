@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class RoomService extends CoreService<Room, RoomRepository, RoomService.Params> {
@@ -260,4 +261,31 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         return beanResult;
     }
 
+    public BeanResult search(
+            String keyword,
+            Long minPrice,
+            Long maxPrice,
+            Integer type
+    ) {
+        BeanResult beanResult = new BeanResult();
+
+        List<Room> roomList = roomRepository.findAllByTitleContainingOrAddressContainingOrDescriptionContaining(keyword, keyword, keyword);
+        if (minPrice != null && maxPrice != null) {
+            roomList = roomList.stream()
+                    .filter(room ->
+                            room.getPrice() >= minPrice
+                                    && room.getPrice() <= maxPrice)
+                    .collect(Collectors.toList());
+        }
+
+        if (type != null) {
+            roomList = roomList.stream()
+                    .filter(room -> room.getType() == type)
+                    .collect(Collectors.toList());
+        }
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(new BeanList(roomList));
+        return beanResult;
+    }
 }

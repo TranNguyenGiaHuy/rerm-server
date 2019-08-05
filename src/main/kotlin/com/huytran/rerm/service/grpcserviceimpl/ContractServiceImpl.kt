@@ -1,9 +1,6 @@
 package com.huytran.rerm.service.grpcserviceimpl
 
-import com.huytran.grpcdemo.generatedproto.Contract
-import com.huytran.grpcdemo.generatedproto.ContractServiceGrpc
-import com.huytran.grpcdemo.generatedproto.GetAllContractRequest
-import com.huytran.grpcdemo.generatedproto.GetAllContractResponse
+import com.huytran.grpcdemo.generatedproto.*
 import com.huytran.rerm.bean.BeanContract
 import com.huytran.rerm.service.ContractService
 import io.grpc.stub.StreamObserver
@@ -22,6 +19,16 @@ class ContractServiceImpl(private val contractService: ContractService): Contrac
         }
 
         responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun terminateContract(request: TerminateContractRequest, responseObserver: StreamObserver<TerminateContractResponse>?) {
+        val result = contractService.terminateContract(request.id)
+        val response = TerminateContractResponse.newBuilder()
+                .setResultCode(result.code)
+                .build()
+
+        responseObserver?.onNext(response)
         responseObserver?.onCompleted()
     }
 

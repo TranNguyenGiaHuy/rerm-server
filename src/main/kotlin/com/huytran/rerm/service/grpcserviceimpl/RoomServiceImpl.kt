@@ -142,6 +142,30 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
         responseObserver?.onCompleted()
     }
 
+    override fun searchRoom(request: SearchRoomRequest, responseObserver: StreamObserver<SearchRoomResponse>?) {
+        val result = roomService.search(
+                request.keyword,
+                request.minPrice,
+                request.maxPrice,
+                request.type
+        )
+        val response = SearchRoomResponse.newBuilder()
+                .setResultCode(result.code)
+
+        if (result.code == ResultCode.RESULT_CODE_VALID
+                && result.bean != null
+                && result.bean is BeanList) {
+            (result.bean as BeanList).listBean.forEach { bean ->
+                response.addRoom(
+                        beanToResultRoom(bean as BeanRoom)
+                )
+            }
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
     private fun beanToResultRoom(bean: BeanRoom): Room.Builder {
         return Room.newBuilder()
                 .setId(bean.id)

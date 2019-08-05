@@ -25,19 +25,22 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
     private GrpcSessionService grpcSessionService;
     private MessageService messageService;
     private SmartContractService smartContractService;
+    private ContractService contractService;
 
     PaymentService(
             PaymentRepository paymentRepository,
             ContractRepository contractRepository,
             GrpcSessionService grpcSessionService,
             MessageService messageService,
-            SmartContractService smartContractService) {
+            SmartContractService smartContractService,
+            ContractService contractService) {
         super(paymentRepository);
         this.paymentRepository = paymentRepository;
         this.contractRepository = contractRepository;
         this.grpcSessionService = grpcSessionService;
         this.messageService = messageService;
         this.smartContractService = smartContractService;
+        this.contractService = contractService;
     }
 
     @Override
@@ -242,8 +245,8 @@ public class PaymentService extends CoreService<Payment, PaymentRepository, Paym
 
         // add payment to smart contract
         Contract contract = optionalContract.get();
-        smartContractService.addPayment(
-                smartContractService.getContract(contract.getAddress()),
+        contractService.addPayment(
+                contractService.getContract(contract.getAddress()),
                 contract.getTsStart(),
                 contract.getTsEnd(),
                 System.currentTimeMillis(),
