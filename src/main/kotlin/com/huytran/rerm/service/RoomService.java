@@ -270,17 +270,25 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         BeanResult beanResult = new BeanResult();
 
         List<Room> roomList = roomRepository.findAllByTitleContainingOrAddressContainingOrDescriptionContaining(keyword, keyword, keyword);
-        if (minPrice != null && maxPrice != null) {
+        if ((minPrice != 0 && maxPrice != 0) && type != -1) {
             roomList = roomList.stream()
                     .filter(room ->
-                            room.getPrice() >= minPrice
-                                    && room.getPrice() <= maxPrice)
+                            (room.getPrice() >= minPrice
+                                    && room.getPrice() <= maxPrice) && room.getType() == type)
                     .collect(Collectors.toList());
         }
 
-        if (type != null) {
+        if (type != -1 && (minPrice == 0 && maxPrice == 0)) {
             roomList = roomList.stream()
                     .filter(room -> room.getType() == type)
+                    .collect(Collectors.toList());
+        }
+
+        if (type == -1 && (minPrice != 0 && maxPrice != 0)) {
+            roomList = roomList.stream()
+                    .filter(room ->
+                            (room.getPrice() >= minPrice
+                                    && room.getPrice() <= maxPrice))
                     .collect(Collectors.toList());
         }
 
