@@ -4,6 +4,7 @@ import com.huytran.grpcdemo.generatedproto.*
 import com.huytran.rerm.bean.BeanGrpcSession
 import com.huytran.rerm.bean.BeanToken
 import com.huytran.rerm.bean.BeanUser
+import com.huytran.rerm.bean.core.BeanList
 import com.huytran.rerm.constant.ResultCode
 import com.huytran.rerm.service.UserService
 import io.grpc.stub.StreamObserver
@@ -37,7 +38,8 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                 UserService.Params(
                         request?.name,
                         request?.password
-                )
+                ),
+                false
         )
         val response = LoginResponse.newBuilder()
                 .setResultCode(loginResult.code)
@@ -120,6 +122,61 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
                 && getInfoOfUserResult.bean != null
                 && getInfoOfUserResult.bean is BeanUser) {
             response.user = beanToUser(getInfoOfUserResult.bean as BeanUser)
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun loginForAdmin(request: LoginRequest, responseObserver: StreamObserver<LoginResponse>?) {
+        val loginResult = userService.login(
+                UserService.Params(
+                        request.name,
+                        request.password
+                ),
+                true
+        )
+        val response = LoginResponse.newBuilder()
+                .setResultCode(loginResult.code)
+        if (loginResult.code == ResultCode.RESULT_CODE_VALID
+                && loginResult.bean != null
+                && loginResult.bean is BeanGrpcSession) {
+            response.token = (loginResult.bean as BeanGrpcSession).token
+        } else {
+            responseObserver?.onError(
+                    Throwable("Login Fail")
+            )
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun getAllUserForAdmin(request: GetAllUserForAdminRequest, responseObserver: StreamObserver<GetAllUserForAdminResponse>?) {
+        if (!userService.isAdmin) {
+            responseObserver?.onError(
+                    Throwable("Permission Denied")
+            )
+            return
+        }
+        val result = userService.all
+        if (result.code != ResultCode.RESULT_CODE_VALID
+                || result.bean == null
+                || result.bean !is BeanList) {
+
+            responseObserver?.onError(
+                    Throwable("Not Found")
+            )
+        }
+
+        val response = GetAllUserForAdminResponse.newBuilder()
+                .setResultCode(result.code)
+        (result.bean as BeanList).listBean
+                .filter { beanBasic -> !(beanBasic as BeanUser).admin }
+                .forEach {
+            response.addUser(
+                    beanToUser(it as BeanUser)
+            )
         }
 
         responseObserver?.onNext(response.build())

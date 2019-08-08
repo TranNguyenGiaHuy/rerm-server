@@ -85,6 +85,15 @@ message GetInfoOfUserResponse {
     User user = 2;
 }
 
+message GetAllUserForAdminRequest {
+
+}
+
+message GetAllUserForAdminResponse {
+    int32 result_code = 1;
+    repeated User user = 2;
+}
+
 service UserService {
     rpc SignUp(SignUpRequest) returns (SignUpResponse) {}
     rpc Login(LoginRequest) returns (LoginResponse) {}
@@ -93,4 +102,6 @@ service UserService {
     rpc LoginWithToken(LoginWithTokenRequest) returns (LoginWithTokenResponse) {}
     rpc UpdateUserInfo(UpdateUserInfoRequest) returns (UpdateUserInfoResponse) {}
     rpc GetInfoOfUser(GetInfoOfUserRequest) returns (GetInfoOfUserResponse) {}
+    rpc GetAllUserForAdmin(GetAllUserForAdminRequest) returns (GetAllUserForAdminResponse) {}
+    rpc LoginForAdmin(LoginRequest) returns (LoginResponse) {}
 }

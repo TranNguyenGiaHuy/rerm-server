@@ -27,6 +27,8 @@ data class User(
         var placeOfPermanent: String = "",
         @Column(name = "place_of_issue_of_identity_card")
         var placeOfIssueOfIdentityCard: String = "",
+        @Column(name = "admin")
+        var admin: Boolean = false,
         @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
         var roomList: List<Room> = emptyList(),
         @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
@@ -57,5 +59,6 @@ data class User(
         trueBean.tsDateOfBirth = this.tsDateOfBirth
         trueBean.placeOfPermanent = this.placeOfPermanent
         trueBean.placeOfIssueOfIdentityCard = this.placeOfIssueOfIdentityCard
+        trueBean.admin = this.admin
     }
 }

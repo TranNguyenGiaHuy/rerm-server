@@ -12,4 +12,5 @@ class BeanUser : BeanBasic() {
     var tsDateOfBirth: Long = 0
     var placeOfPermanent: String = ""
     var placeOfIssueOfIdentityCard: String = ""
+    var admin: Boolean = false
 }

@@ -33,4 +33,5 @@ message TerminateContractResponse {
 service ContractService {
     rpc GetAllContract(GetAllContractRequest) returns (GetAllContractResponse) {}
     rpc TerminateContract(TerminateContractRequest) returns (TerminateContractResponse) {}
+    rpc GetAllContractForAdmin(GetAllContractRequest) returns (GetAllContractResponse) {}
 }

@@ -155,7 +155,7 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         return beanResult;
     }
 
-    public BeanResult login(Params params) {
+    public BeanResult login(Params params, Boolean isAdmin) {
         BeanResult beanResult = new BeanResult();
 
         BeanResult getSessionResult = grpcSessionService.getSession();
@@ -171,6 +171,11 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         }
 
         User user = originalUser.get();
+        if ((user.getAdmin() && !isAdmin) || (!user.getAdmin() && isAdmin)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_PERMISSION_LIMITED);
+            return beanResult;
+        }
+
         if (
                 !UtilityFunction.Companion.comparePassword(params.password, user.getPassword())
         ) {
@@ -267,5 +272,17 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         beanResult.setBean(user.createBean());
         beanResult.setCode(ResultCode.RESULT_CODE_VALID);
         return beanResult;
+    }
+
+    public boolean isAdmin() {
+        BeanResult beanResult = grpcSessionService.getSession();
+        if (beanResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || !(beanResult.getBean() instanceof BeanGrpcSession)) {
+            return false;
+        }
+
+        BeanGrpcSession beanGrpcSession = (BeanGrpcSession) beanResult.getBean();
+        Optional<User> optionalUser = userRepository.findByIdAndAvailable(beanGrpcSession.getUserId(), true);
+        return optionalUser.isPresent() && optionalUser.get().getAdmin();
     }
 }

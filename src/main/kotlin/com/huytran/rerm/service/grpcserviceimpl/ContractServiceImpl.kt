@@ -3,11 +3,12 @@ package com.huytran.rerm.service.grpcserviceimpl
 import com.huytran.grpcdemo.generatedproto.*
 import com.huytran.rerm.bean.BeanContract
 import com.huytran.rerm.service.ContractService
+import com.huytran.rerm.service.UserService
 import io.grpc.stub.StreamObserver
 import org.lognet.springboot.grpc.GRpcService
 
 @GRpcService
-class ContractServiceImpl(private val contractService: ContractService): ContractServiceGrpc.ContractServiceImplBase() {
+class ContractServiceImpl(private val contractService: ContractService, private val userService: UserService): ContractServiceGrpc.ContractServiceImplBase() {
 
     override fun getAllContract(request: GetAllContractRequest?, responseObserver: StreamObserver<GetAllContractResponse>?) {
         val beanContractList = contractService.allOfUser
@@ -29,6 +30,25 @@ class ContractServiceImpl(private val contractService: ContractService): Contrac
                 .build()
 
         responseObserver?.onNext(response)
+        responseObserver?.onCompleted()
+    }
+
+    override fun getAllContractForAdmin(request: GetAllContractRequest?, responseObserver: StreamObserver<GetAllContractResponse>?) {
+        if (!userService.isAdmin) {
+            responseObserver?.onError(
+                    Throwable("Permission Denied")
+            )
+            return
+        }
+        val beanContractList = contractService.allForAdmin
+        val response = GetAllContractResponse.newBuilder()
+        beanContractList.forEach {
+            response.addContract(
+                    beanToContract(it)
+            )
+        }
+
+        responseObserver?.onNext(response.build())
         responseObserver?.onCompleted()
     }
 

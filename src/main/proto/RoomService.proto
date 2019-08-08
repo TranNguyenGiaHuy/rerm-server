@@ -108,4 +108,5 @@ service RoomService {
     rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse) {}
     rpc GetAllRoomOfUser(GetAllRoomOfUserRequest) returns (GetAllRoomOfUserResponse) {}
     rpc SearchRoom(SearchRoomRequest) returns (SearchRoomResponse) {}
+    rpc GetAllRoomForAdmin(GetAllRoomRequest) returns (GetAllRoomResponse) {}
 }

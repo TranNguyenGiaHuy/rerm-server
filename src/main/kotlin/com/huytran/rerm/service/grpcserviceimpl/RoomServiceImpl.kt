@@ -6,11 +6,12 @@ import com.huytran.rerm.bean.core.BeanList
 import com.huytran.rerm.constant.ResultCode
 import com.huytran.rerm.service.RoomService
 import com.huytran.rerm.service.SavedRoomService
+import com.huytran.rerm.service.UserService
 import io.grpc.stub.StreamObserver
 import org.lognet.springboot.grpc.GRpcService
 
 @GRpcService
-class RoomServiceImpl(private val roomService: RoomService, private val savedRoomService: SavedRoomService) : RoomServiceGrpc.RoomServiceImplBase() {
+class RoomServiceImpl(private val roomService: RoomService, private val savedRoomService: SavedRoomService, private val userService: UserService) : RoomServiceGrpc.RoomServiceImplBase() {
 
     override fun createRoom(request: CreateRoomRequest, responseObserver: StreamObserver<CreateRoomResponse>?) {
         val createResult = roomService.create(
@@ -158,6 +159,34 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
             (result.bean as BeanList).listBean.forEach { bean ->
                 response.addRoom(
                         beanToResultRoom(bean as BeanRoom)
+                )
+            }
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
+    override fun getAllRoomForAdmin(request: GetAllRoomRequest?, responseObserver: StreamObserver<GetAllRoomResponse>?) {
+        if (!userService.isAdmin) {
+            responseObserver?.onError(
+                    Throwable("Permission Denied")
+            )
+            return
+        }
+        val getAllResult = roomService.all
+
+        val response = GetAllRoomResponse.newBuilder()
+                .setResultCode(getAllResult.code)
+
+        if (getAllResult.code == ResultCode.RESULT_CODE_VALID
+                && getAllResult.bean != null
+                && getAllResult.bean is BeanList) {
+            val beanList = getAllResult.bean as BeanList
+            beanList.listBean.forEach { beanBasic ->
+                val bean = beanBasic as BeanRoom
+                response.addRoom(
+                        beanToResultRoom(bean)
                 )
             }
         }
