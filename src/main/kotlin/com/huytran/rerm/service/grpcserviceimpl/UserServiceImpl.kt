@@ -183,6 +183,27 @@ class UserServiceImpl(private val userService: UserService) : UserServiceGrpc.Us
         responseObserver?.onCompleted()
     }
 
+    override fun getInfoForAdmin(request: GetInfoForAdminRequest, responseObserver: StreamObserver<GetInfoResponse>?) {
+        if (!userService.isAdmin) {
+            responseObserver?.onError(
+                    Throwable("Permission Denied")
+            )
+            return
+        }
+
+        val result = userService.getForAdmin(request.id)
+        val response = GetInfoResponse.newBuilder().setResultCode(result.code)
+
+        if (result.code != ResultCode.RESULT_CODE_VALID
+                || result.bean == null
+                || result.bean !is BeanUser) {
+            response.user = beanToUser(result.bean as BeanUser)
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
     private fun beanToUser(bean : BeanUser) : User {
         return User.newBuilder()
                 .setName(bean.name)

@@ -52,6 +52,25 @@ class ContractServiceImpl(private val contractService: ContractService, private 
         responseObserver?.onCompleted()
     }
 
+    override fun getAllContractOfUserForAdmin(request: GetAllContractOfUserRequest, responseObserver: StreamObserver<GetAllContractResponse>?) {
+        if (!userService.isAdmin) {
+            responseObserver?.onError(
+                    Throwable("Permission Denied")
+            )
+            return
+        }
+        val result = contractService.getAllOfUserForAdmin(request.id)
+        val response = GetAllContractResponse.newBuilder()
+        result.forEach {
+            response.addContract(
+                    beanToContract(it)
+            )
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
     private fun beanToContract(beanContract: BeanContract): Contract {
         return Contract.newBuilder()
                 .setId(beanContract.id)

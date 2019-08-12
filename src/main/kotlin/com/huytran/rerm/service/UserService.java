@@ -274,6 +274,20 @@ public class UserService extends CoreService<User, UserRepository, UserService.P
         return beanResult;
     }
 
+    public BeanResult getForAdmin(long id) {
+        BeanResult beanResult = new BeanResult();
+
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (!optionalUser.isPresent()) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return beanResult;
+        }
+
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(optionalUser.get().createBean());
+        return beanResult;
+    }
+
     public boolean isAdmin() {
         BeanResult beanResult = grpcSessionService.getSession();
         if (beanResult.getCode() != ResultCode.RESULT_CODE_VALID

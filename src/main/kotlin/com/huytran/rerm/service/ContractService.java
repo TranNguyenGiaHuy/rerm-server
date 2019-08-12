@@ -219,6 +219,62 @@ public class ContractService extends CoreService<Contract, ContractRepository, C
         return beanContractList;
     }
 
+    public List<BeanContract> getAllOfUserForAdmin(long id) {
+        BeanResult beanResult = new BeanResult();
+        BeanResult getGrpcTokenResult = grpcSessionService.getSession();
+
+        if (getGrpcTokenResult.getCode() != ResultCode.RESULT_CODE_VALID
+                || getGrpcTokenResult.getBean() == null
+                || !(getGrpcTokenResult.getBean() instanceof BeanGrpcSession)) {
+            beanResult.setCode(ResultCode.RESULT_CODE_NOT_FOUND);
+            return null;
+        }
+
+        List<Contract> contractList = contractRepository.findAllByRenter_IdOrOwner_Id(id, id);
+        List<BeanContract> beanContractList = new ArrayList<>();
+
+        // get all room within contract list
+        List<Room> roomList = roomRepository.findAllById(
+                contractList.stream().mapToLong(value -> value.getRoom().getId())
+                        .distinct()
+                        .boxed().collect(Collectors.toList())
+        );
+
+        // get all owner and renter
+        List<User> ownerList = userRepository.findAllById(
+                contractList.stream().mapToLong(value -> value.getOwner().getId())
+                        .distinct()
+                        .boxed().collect(Collectors.toList())
+        );
+        List<User> renterList = userRepository.findAllById(
+                contractList.stream().mapToLong(value -> value.getRenter().getId())
+                        .distinct()
+                        .boxed().collect(Collectors.toList())
+        );
+
+        contractList.forEach(contract -> {
+            BeanContract beanContract = (BeanContract) contract.createBean();
+            roomList.stream().filter(room -> room.getId() == beanContract.getRoomId())
+                    .findFirst().ifPresent(room -> {
+                        beanContract.setRoomName(room.getTitle());
+            });
+
+            ownerList.stream().filter(user -> user.getId() == beanContract.getOwner())
+                    .findFirst().ifPresent(user -> {
+                        beanContract.setOwnerName(user.getUserName());
+            });
+
+            renterList.stream().filter(user -> user.getId() == beanContract.getRenter())
+                    .findFirst().ifPresent(user -> {
+                        beanContract.setRenterName(user.getUserName());
+            });
+
+            beanContractList.add(beanContract);
+        });
+
+        return beanContractList;
+    }
+
     public BeanResult terminateContract(Long id) {
         BeanResult beanResult = new BeanResult();
 

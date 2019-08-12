@@ -296,4 +296,14 @@ public class RoomService extends CoreService<Room, RoomRepository, RoomService.P
         beanResult.setBean(new BeanList(roomList));
         return beanResult;
     }
+
+    public BeanResult getOfUserForAdmin(long id) {
+        BeanResult beanResult = new BeanResult();
+
+        List<Room> roomList = roomRepository.findByOwner_Id(id);
+        beanResult.setCode(ResultCode.RESULT_CODE_VALID);
+        beanResult.setBean(new BeanList(roomList));
+
+        return beanResult;
+    }
 }

@@ -12,6 +12,8 @@ import java.util.*
 interface RoomRepository : RepositoryCore<Room, Long> {
     fun findByOwner_IdAndAvailable(userId: Long, available: Boolean): List<Room>
 
+    fun findByOwner_Id(userId: Long): List<Room>
+
     fun findByIdAndAvailableAndRenting(id: Long, available: Boolean, renting:  Boolean): Optional<Room>
 
     fun findAllByTitleContainingOrAddressContainingOrDescriptionContaining(title: String, address: String, description: String): List<Room>

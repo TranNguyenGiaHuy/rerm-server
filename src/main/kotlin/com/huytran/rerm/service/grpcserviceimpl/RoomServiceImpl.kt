@@ -195,6 +195,34 @@ class RoomServiceImpl(private val roomService: RoomService, private val savedRoo
         responseObserver?.onCompleted()
     }
 
+    override fun getAllOfForAdmin(request: GetOfUserForAdminRequest, responseObserver: StreamObserver<GetAllRoomResponse>?) {
+        if (!userService.isAdmin) {
+            responseObserver?.onError(
+                    Throwable("Permission Denied")
+            )
+            return
+        }
+
+        val result = roomService.getOfUserForAdmin(request.id)
+        val response = GetAllRoomResponse.newBuilder()
+                .setResultCode(result.code)
+
+        if (result.code == ResultCode.RESULT_CODE_VALID
+                && result.bean != null
+                && result.bean is BeanList) {
+            val beanList = result.bean as BeanList
+            beanList.listBean.forEach { beanBasic ->
+                val bean = beanBasic as BeanRoom
+                response.addRoom(
+                        beanToResultRoom(bean)
+                )
+            }
+        }
+
+        responseObserver?.onNext(response.build())
+        responseObserver?.onCompleted()
+    }
+
     private fun beanToResultRoom(bean: BeanRoom): Room.Builder {
         return Room.newBuilder()
                 .setId(bean.id)
